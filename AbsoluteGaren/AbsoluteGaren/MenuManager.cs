@@ -37,7 +37,6 @@ namespace AbsoluteGaren
             mainMenu.AddLabel("Found a bug or error? Please contact me by PM on EloBuddy.");
             mainMenu.AddSeparator();
             mainMenu.AddLabel("Spell Configurations");
-            mainMenu.AddCheckBox("autoW", "Auto W");
             mainMenu.AddCheckBox("cleanseQ", "Cleanse Slows with Q");
             mainMenu.AddCheckBox("destroy", "Destory structures with Q");
             mainMenu.AddSlider("percentQ", "Save Q for ks when unit Health percent >= ", 35, 0, 100);
