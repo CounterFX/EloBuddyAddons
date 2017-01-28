@@ -24,7 +24,6 @@ namespace AbsoluteGaren
         static List<Menu> MenuList;
         static Menu mainMenu, comboMenu, laneClearMenu, lastHitMenu, jungleClearMenu, ksMenu;
         public static int percentHealth;
-        static AIHeroClient _player => Player.Instance;
 
         public static void Initialize()
         {
@@ -38,7 +37,7 @@ namespace AbsoluteGaren
             mainMenu.AddSeparator();
             mainMenu.AddLabel("Spell Configurations");
             mainMenu.AddCheckBox("cleanseQ", "Cleanse Slows with Q");
-            mainMenu.AddCheckBox("destroy", "Destory structures with Q");
+            mainMenu.AddCheckBox("destroy", "Destroy structures with Q");
             mainMenu.AddSlider("percentQ", "Save Q for ks when unit Health percent >= ", 35, 0, 100);
             MenuList.Add(mainMenu);
 

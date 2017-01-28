@@ -22,7 +22,7 @@ namespace AbsoluteGaren
     {
         public static Spell.Active Q, W, E;
         public static Spell.Targeted R;
-        static AIHeroClient _player => Player.Instance;
+        static AIHeroClient _player;
 
         public static void Initialize()
         {
@@ -34,17 +34,14 @@ namespace AbsoluteGaren
             E = new Spell.Active(SpellSlot.E, 300, DamageType.Physical);
             R = new Spell.Targeted(SpellSlot.R, 400, DamageType.Magical);
 
+            _player = Player.Instance;
+
             Console.WriteLine("SpellManager initialized.");
         }
 
         public static float QDamage(Obj_AI_Base target)
         {
             return _player.CalculateDamageOnUnit(target, Q.DamageType, Q.GetSpellDamage(target), true, true);
-        }
-
-        public static float EDamage(Obj_AI_Base target)
-        {
-            return 0;
         }
 
         public static float RDamage(Obj_AI_Base target)

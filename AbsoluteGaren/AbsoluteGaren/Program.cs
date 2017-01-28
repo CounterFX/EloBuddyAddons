@@ -21,8 +21,7 @@ namespace AbsoluteGaren
     class Program
     {
         static Champion _champion = Champion.Garen;
-        static AIHeroClient _player => Player.Instance;
-
+        static AIHeroClient _player;
 
         public static void Main(string[] args)
         {
@@ -31,6 +30,10 @@ namespace AbsoluteGaren
         
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
+            // Assign player object
+            _player = Player.Instance;
+            ModeManager._player = _player;
+            
             // Validate champion instance
             if (!_player.VerifyHero(_champion))
                 return;

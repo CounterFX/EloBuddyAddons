@@ -21,7 +21,7 @@ namespace AbsoluteGaren
     class ModeManager
     {
         public static float LastAutoTime = 0;
-        static AIHeroClient _player => Player.Instance;
+        public static AIHeroClient _player;
 
         public static void Combo()
         {
@@ -32,6 +32,7 @@ namespace AbsoluteGaren
                     .Where(a => a.IsValidTarget(_player.GetAutoAttackRange())
                     && _player.IsInRange(a, _player.GetAutoAttackRange())
                     && a.Health >= MenuManager.percentHealth
+                    && Game.Time - LastAutoTime < 0.1f
                     ).FirstOrDefault();
 
                 if (target != null)
@@ -180,7 +181,8 @@ namespace AbsoluteGaren
                     && list.Contains(a.Type)
                     && _player.CountEnemyChampionsInRange(a.GetAutoAttackRange()) == 0
                     && _player.IsInAutoAttackRange(a)
-                    && (a.HealthPercent >= MenuManager.percentHealth
+                    && ((a.HealthPercent >= MenuManager.percentHealth
+                    && Game.Time - LastAutoTime < 0.1f)
                     || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
                     ).FirstOrDefault();
 
