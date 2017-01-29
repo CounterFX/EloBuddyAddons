@@ -33,7 +33,52 @@ namespace AbsoluteGaren
         /// <param name="defaultValue"></param>
         public static void AddCheckBox(this Menu sender, string uniqueIdentifier, string displayName, bool defaultValue = true)
         {
-            sender.Add(uniqueIdentifier, new CheckBox(displayName, defaultValue));
+            if (sender != null)
+                sender.Add(uniqueIdentifier, new CheckBox(displayName, defaultValue));
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
+        }
+
+        /// <summary>
+        /// Returns a CheckBox object with a unique identifier.
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <param name="uniqueIdentifier"></param>
+        /// <returns></returns>
+        public static CheckBox GetCheckBoxObject(this Menu sender, string uniqueIdentifier)
+        {
+            if (sender != null)
+            {
+                if (sender.Get<CheckBox>(uniqueIdentifier) != null)
+                   return sender.Get<CheckBox>(uniqueIdentifier);
+                else
+                    Console.WriteLine("CheckBox with id - " + uniqueIdentifier + " - isn't initialized in " + sender + ".");
+            }
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the current value of a CheckBox object with a unique identifier.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="uniqueIdentifier"></param>
+        /// <returns></returns>
+        public static bool GetCheckBoxValue(this Menu sender, string uniqueIdentifier)
+        {
+            if (sender != null)
+            {
+                if (sender.GetCheckBoxObject(uniqueIdentifier) != null)
+                    return sender.GetCheckBoxObject(uniqueIdentifier).CurrentValue;
+                else
+                    Console.WriteLine("CheckBox with id - " + uniqueIdentifier + " - isn't initialized in " + sender + ".");
+            }
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
+
+            return false;
         }
 
         /// <summary>
@@ -48,7 +93,52 @@ namespace AbsoluteGaren
         public static void AddSlider(this Menu sender, string uniqueIdentifier, string displayName,
             int defaultValue = 0, int minValue = 0, int maxValue = 100)
         {
-            sender.Add(uniqueIdentifier, new Slider(displayName, defaultValue, minValue, maxValue));
+            if (sender != null)
+                sender.Add(uniqueIdentifier, new Slider(displayName, defaultValue, minValue, maxValue));
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
+        }
+
+        /// <summary>
+        /// Returns a Slider object with a unique identifier.
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <param name="uniqueIdentifier"></param>
+        /// <returns></returns>
+        public static Slider GetSliderObject(this Menu sender, string uniqueIdentifier)
+        {
+            if (sender != null)
+            {
+                if (sender.Get<Slider>(uniqueIdentifier) != null)
+                   return sender.Get<Slider>(uniqueIdentifier);
+                else
+                    Console.WriteLine("Slider with id - " + uniqueIdentifier + " - isn't initialized in " + sender + ".");
+            }
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the current value of a Slider object with a unique identifier.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="uniqueIdentifier"></param>
+        /// <returns></returns>
+        public static int GetSliderValue(this Menu sender, string uniqueIdentifier)
+        {
+            if (sender != null)
+            {
+                if (sender.GetSliderObject(uniqueIdentifier) != null)
+                    return sender.GetSliderObject(uniqueIdentifier).CurrentValue;
+                else
+                    Console.WriteLine("Slider with id - " + uniqueIdentifier + " - isn't initialized in " + sender + ".");
+            }
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
+
+            return -1;
         }
 
         /// <summary>
@@ -62,123 +152,73 @@ namespace AbsoluteGaren
         public static void AddComboBox(this Menu sender, string uniqueIdentifier, string displayName,
             List<string> textValues, int defaultIndex)
         {
-            sender.Add(uniqueIdentifier, new ComboBox(displayName, textValues, defaultIndex));
+            if (sender != null)
+                sender.Add(uniqueIdentifier, new ComboBox(displayName, textValues, defaultIndex));
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
         }
 
         /// <summary>
-        /// Retrieves the value of a Checkbox from a Dictionary with a unique identifier.
+        /// Returns a ComboBox object with a unique identifier.
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <param name="uniqueIdentifier"></param>
+        /// <returns></returns>
+        public static ComboBox GetComboBoxObject(this Menu sender, string uniqueIdentifier)
+        {
+            if (sender != null)
+            {
+                if (sender.Get<ComboBox>(uniqueIdentifier) != null)
+                   return sender.Get<ComboBox>(uniqueIdentifier);
+                else
+                    Console.WriteLine("ComboBox with id - " + uniqueIdentifier + " - isn't initialized in " + sender + ".");
+            }
+            else
+                Console.WriteLine("Menu isn't initialized to an instance.");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the selected index of a ComboBox object with a unique identifier.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="uniqueIdentifier"></param>
         /// <returns></returns>
-        public static bool GetCheckBoxValue(this Dictionary<string, ValueBase> sender, string uniqueIdentifier)
+        public static int GetComboBoxSelectedIndex(this Menu sender, string uniqueIdentifier)
         {
             if (sender != null)
             {
-                ValueBase checkbox = sender.Where(a => a.Key == uniqueIdentifier.ToLower()).FirstOrDefault().Value;
-
-                if (checkbox != null)
-                {
-                    return checkbox.Cast<CheckBox>().CurrentValue;
-                }
+                if (sender.GetComboBoxObject(uniqueIdentifier) != null)
+                    return sender.GetComboBoxObject(uniqueIdentifier).SelectedIndex;
                 else
-                {
-                    Console.WriteLine("CheckBox value with identifier - " + uniqueIdentifier + " - unknown.");
-                    return false;
-                }
+                    Console.WriteLine("ComboBox with id - " + uniqueIdentifier + " - isn't initialized in " + sender + ".");
             }
             else
-            {
-                Console.WriteLine("Checkbox sender not initialized.");
-                return false;
-            }
+                Console.WriteLine("Menu isn't initialized to an instance.");
+
+            return -1;
         }
 
         /// <summary>
-        /// Retrieves the value of a Slider from a Dictionary with a unique identifier.
+        /// Returns the selected text of a ComboBox object with a unique identifier.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="uniqueIdentifier"></param>
         /// <returns></returns>
-        public static int GetSliderValue(this Dictionary<string, ValueBase> sender, string uniqueIdentifier)
+        public static string GetComboBoxSelectedText(this Menu sender, string uniqueIdentifier)
         {
             if (sender != null)
             {
-                ValueBase slider = sender.Where(a => a.Key == uniqueIdentifier.ToLower()).FirstOrDefault().Value;
-
-                if (slider != null)
-                {
-                    return slider.Cast<Slider>().CurrentValue;
-                }
+                if (sender.GetComboBoxObject(uniqueIdentifier) != null)
+                    return sender.GetComboBoxObject(uniqueIdentifier).SelectedText;
                 else
-                {
-                    Console.WriteLine("Slider value with identifier - " + uniqueIdentifier + " - unknown.");
-                    return 0;
-                }
+                    Console.WriteLine("ComboBox with id - " + uniqueIdentifier + " - isn't initialized in " + sender + ".");
             }
             else
-            {
-                Console.WriteLine("Slider sender not initialized.");
-                return 0;
-            }
-        }
+                Console.WriteLine("Menu isn't initialized to an instance.");
 
-        /// <summary>
-        /// Retrieves the value of a ComboBox from a Dictionary with a unique identifier.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="uniqueIdentifier"></param>
-        /// <returns></returns>
-        public static int GetComboBoxValue(this Dictionary<string, ValueBase> sender, string uniqueIdentifier)
-        {
-            if (sender != null)
-            {
-                ValueBase combobox = sender.Where(a => a.Key == uniqueIdentifier.ToLower()).FirstOrDefault().Value;
-
-                if (combobox != null)
-                {
-                    return combobox.Cast<ComboBox>().CurrentValue;
-                }
-                else
-                {
-                    Console.WriteLine("ComboBox value with identifier - " + uniqueIdentifier + " - unknown.");
-                    return 0;
-                }
-            }
-            else
-            {
-                Console.WriteLine("ComboBox sender not initialized.");
-                return 0;
-            }
-        }
-
-        /// <summary>
-        /// Retrieves the string of a ComboBox from a Dictionary with a unique identifier.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="uniqueIdentifier"></param>
-        /// <returns></returns>
-        public static string GetComboBoxString(this Dictionary<string, ValueBase> sender, string uniqueIdentifier)
-        {
-            if (sender != null)
-            {
-                ValueBase combobox = sender.Where(a => a.Key == uniqueIdentifier.ToLower()).FirstOrDefault().Value;
-
-                if (combobox != null)
-                {
-                    return combobox.Cast<ComboBox>().CurrentValue.ToString();
-                }
-                else
-                {
-                    Console.WriteLine("ComboBox string with identifier - " + uniqueIdentifier + " - unknown.");
-                    return null;
-                }
-            }
-            else
-            {
-                Console.WriteLine("ComboBox sender not initialized.");
-                return null;
-            }
+            return null;
         }
         #endregion
 
@@ -243,6 +283,34 @@ namespace AbsoluteGaren
                 Console.WriteLine("This object isn't initialized to an instance.");
                 return false;
             }
+        }
+        #endregion
+
+        #region Calculations
+        public static float GetActiveItemDamage(this AIHeroClient sender, Obj_AI_Base target)
+        {
+            float damage = 0;
+            List<ItemId> itemList = new List<ItemId>
+            {
+                ItemId.Bilgewater_Cutlass,
+                ItemId.Blade_of_the_Ruined_King,
+                ItemId.Hextech_Gunblade,
+                ItemId.Hextech_Protobelt_01,
+                ItemId.Redemption,
+                ItemId.Ravenous_Hydra,
+                ItemId.Titanic_Hydra,
+                ItemId.Tiamat
+            };
+
+            foreach (ItemId id in itemList)
+            {
+                InventorySlot item = sender.InventoryItems.FirstOrDefault(a => a.Id == id);
+
+                if (item != null && item.CanUseItem())
+                    damage += DamageLibrary.GetItemDamage(sender, target, id);
+            }
+
+            return damage;
         }
         #endregion
     }

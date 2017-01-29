@@ -20,75 +20,66 @@ namespace AbsoluteGaren
 {
     class MenuManager
     {
-        public static Dictionary<string, ValueBase> Menu;
-        static List<Menu> MenuList;
-        static Menu mainMenu, comboMenu, laneClearMenu, lastHitMenu, jungleClearMenu, ksMenu;
+        public static Menu mainMenu, Combo, LaneClear, LastHit, JungleClear, KillSteal, Drawing, Settings;
         public static int percentHealth;
 
         public static void Initialize()
         {
-            Menu = new Dictionary<string, ValueBase>();
-            MenuList = new List<Menu>();
-
             mainMenu = MainMenu.AddMenu("AbsoluteGaren", "mainMenu");
+            Combo = mainMenu.AddSubMenu("Combo", "ComboMenu");
+            LaneClear = mainMenu.AddSubMenu("LaneClear", "LaneClearMenu");
+            LastHit = mainMenu.AddSubMenu("LastHit", "LastHitMenu");
+            JungleClear = mainMenu.AddSubMenu("JungleClear", "JungleClearMenu");
+            KillSteal = mainMenu.AddSubMenu("KillSteal", "KillStealMenu");
+            Drawing = mainMenu.AddSubMenu("Drawing", "DrawingMenu");
+            Settings = mainMenu.AddSubMenu("Settings", "SettingsMenu");
+
             mainMenu.AddGroupLabel("Created by Counter");
             mainMenu.AddLabel("This addon is designed for the Champion, Garen.");
             mainMenu.AddLabel("Found a bug or error? Please contact me by PM on EloBuddy.");
-            mainMenu.AddSeparator();
-            mainMenu.AddLabel("Spell Configurations");
-            mainMenu.AddCheckBox("cleanseQ", "Cleanse Slows with Q");
-            mainMenu.AddCheckBox("destroy", "Destroy structures with Q");
-            mainMenu.AddSlider("percentQ", "Save Q for ks when unit Health percent >= ", 35, 0, 100);
-            MenuList.Add(mainMenu);
+            
+            Combo.AddGroupLabel("Combo Features");
+            Combo.AddCheckBox("comboQ", "Use Q");
+            Combo.AddCheckBox("comboE", "Use E");
+            
+            LaneClear.AddGroupLabel("LaneClear Features");
+            LaneClear.AddCheckBox("laneQ", "Use Q");
+            LaneClear.AddCheckBox("laneE", "Use E");
+            
+            LastHit.AddGroupLabel("LastHit Features");
+            LastHit.AddCheckBox("lasthitQ", "Use Q");
+            
+            JungleClear.AddGroupLabel("JungleClear Features");
+            JungleClear.AddCheckBox("jungleQ", "Use Q");
+            JungleClear.AddCheckBox("jungleE", "Use E");
+            
+            KillSteal.AddGroupLabel("KillSteal Features");
+            KillSteal.AddCheckBox("ksAA", "KS with Auto Attack");
+            KillSteal.AddCheckBox("ksQ", "KS with Q");
+            KillSteal.AddCheckBox("ksR", "KS with R");
+            
+            Drawing.AddGroupLabel("Drawing Features");
+            Drawing.AddCheckBox("render", "Render Health Bar");
+            Drawing.AddCheckBox("killable", "Display 'Killable' text");
+            Drawing.AddLabel("Rendering Configurations");
+            Drawing.AddCheckBox("renderS", "Render Spell damage");
+            Drawing.AddCheckBox("renderI", "Render Item damage");
+            Drawing.AddSlider("renderAA", "Render Auto Attack damage", 2, 0, 5);
 
-            comboMenu = mainMenu.AddSubMenu("Combo", "comboMenu");
-            comboMenu.AddLabel("Combo Configurations");
-            comboMenu.AddCheckBox("comboQ", "Use Q");
-            comboMenu.AddCheckBox("comboE", "Use E");
-            MenuList.Add(comboMenu);
+            Settings.AddGroupLabel("Settings Features");
+            Settings.AddCheckBox("cleanseQ", "Cleanse Slows with Q");
+            Settings.AddCheckBox("destroy", "Destroy structures with Q");
+            Settings.AddSlider("percentQ", "Save Q for ks when unit Health percent >= ", 35, 0, 100);
 
-            laneClearMenu = mainMenu.AddSubMenu("Lane Clear", "laneClearMenu");
-            laneClearMenu.AddLabel("Lane Clear Configurations");
-            laneClearMenu.AddCheckBox("laneQ", "Use Q");
-            laneClearMenu.AddCheckBox("laneE", "Use E");
-            MenuList.Add(laneClearMenu);
-
-            lastHitMenu = mainMenu.AddSubMenu("Last Hit", "lastHitMenu");
-            lastHitMenu.AddLabel("Last Hit Configurations");
-            lastHitMenu.AddCheckBox("lasthitQ", "Use Q");
-            MenuList.Add(lastHitMenu);
-
-            jungleClearMenu = mainMenu.AddSubMenu("Jungle Clear", "jungleClearMenu");
-            jungleClearMenu.AddLabel("Jungle Clear Configurations");
-            jungleClearMenu.AddCheckBox("jungleQ", "Use Q");
-            jungleClearMenu.AddCheckBox("jungleE", "Use E");
-            MenuList.Add(jungleClearMenu);
-
-            ksMenu = mainMenu.AddSubMenu("KillSteal", "ksMenu");
-            ksMenu.AddLabel("KillSteal Configurations");
-            ksMenu.AddCheckBox("ksAA", "KS with Auto Attack");
-            ksMenu.AddCheckBox("ksQ", "KS with Q");
-            ksMenu.AddCheckBox("ksR", "KS with R");
-            MenuList.Add(ksMenu);
-
-            foreach (Menu menu in MenuList)
-            {
-                if (menu != null)
-                    foreach (KeyValuePair<string, ValueBase> pair in menu.LinkedValues)
-                        Menu.Add(pair.Key, pair.Value);
-                else
-                    Console.WriteLine(menu.DisplayName + " not set to a instance.");
-            }
-
-            percentHealth = Menu.GetSliderValue("percentQ");
+            percentHealth = Settings.GetSliderValue("percentQ");
 
             Console.WriteLine("MenuManager initialized.");
         }
 
         public static void MenuConfig()
         {
-            if (percentHealth != Menu.GetSliderValue("percentQ"))
-                percentHealth = Menu.GetSliderValue("percentQ");
+            if (percentHealth != Settings.GetSliderValue("percentQ"))
+                percentHealth = Settings.GetSliderValue("percentQ");
         }
     }
 }

@@ -25,7 +25,7 @@ namespace AbsoluteGaren
 
         public static void Combo()
         {
-            if (MenuManager.Menu.GetCheckBoxValue("comboQ") && SpellManager.Q.IsReady())
+            if (MenuManager.Combo.GetCheckBoxValue("comboQ") && SpellManager.Q.IsReady())
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
@@ -42,15 +42,15 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.Menu.GetCheckBoxValue("comboE") && SpellManager.E.IsReady()
+            if (MenuManager.Combo.GetCheckBoxValue("comboE") && SpellManager.E.IsReady()
                 && SpellManager.E.Name != "GarenECancel"
-                && _player.CountEnemyMinionsInRange(SpellManager.E.Range) > 0)
+                && _player.CountEnemyChampionsInRange(SpellManager.E.Range) > 0)
                 SpellManager.E.Cast();
         }
 
         public static void LaneClear()
         {
-            if (MenuManager.Menu.GetCheckBoxValue("laneQ") && SpellManager.Q.IsReady())
+            if (MenuManager.LaneClear.GetCheckBoxValue("laneQ") && SpellManager.Q.IsReady())
             {
                 Obj_AI_Base target = EntityManager.MinionsAndMonsters.EnemyMinions
                     .OrderBy(a => a.Health)
@@ -68,7 +68,7 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.Menu.GetCheckBoxValue("laneE") && SpellManager.E.IsReady()
+            if (MenuManager.LaneClear.GetCheckBoxValue("laneE") && SpellManager.E.IsReady()
                 && SpellManager.E.Name != "GarenECancel"
                 && _player.CountEnemyMinionsInRange(SpellManager.E.Range) > 1)
                 SpellManager.E.Cast();
@@ -76,13 +76,14 @@ namespace AbsoluteGaren
 
         public static void LastHit()
         {
-            if (MenuManager.Menu.GetCheckBoxValue("lasthitQ") && SpellManager.Q.IsReady())
+            if (MenuManager.LastHit.GetCheckBoxValue("lasthitQ") && SpellManager.Q.IsReady())
             {
                 Obj_AI_Base target = EntityManager.MinionsAndMonsters.EnemyMinions
                     .OrderByDescending(a => a.FlatGoldRewardMod)
                     .ThenBy(a => a.Health)
                     .Where(a => a.IsValidTarget()
                     && _player.IsInAutoAttackRange(a)
+                    && a.Health > _player.GetAutoAttackDamage(a)
                     && a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a)
                     ).FirstOrDefault();
 
@@ -96,7 +97,7 @@ namespace AbsoluteGaren
 
         public static void JungleClear()
         {
-            if (MenuManager.Menu.GetCheckBoxValue("jungleQ") && SpellManager.Q.IsReady())
+            if (MenuManager.JungleClear.GetCheckBoxValue("jungleQ") && SpellManager.Q.IsReady())
             {
                 Obj_AI_Base target = EntityManager.MinionsAndMonsters.Monsters
                     .OrderBy(a => a.Health)
@@ -115,7 +116,7 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.Menu.GetCheckBoxValue("jungleE") && SpellManager.E.IsReady()
+            if (MenuManager.JungleClear.GetCheckBoxValue("jungleE") && SpellManager.E.IsReady()
                 && SpellManager.E.Name != "GarenECancel"
                 && _player.CountJungleCreaturesInRange(SpellManager.E.Range) > 1)
                 SpellManager.E.Cast();
@@ -123,7 +124,7 @@ namespace AbsoluteGaren
 
         public static void KillSteal()
         {
-            if (MenuManager.Menu.GetCheckBoxValue("ksAA"))
+            if (MenuManager.KillSteal.GetCheckBoxValue("ksAA"))
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
@@ -138,7 +139,7 @@ namespace AbsoluteGaren
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                 }
             }
-            else if (MenuManager.Menu.GetCheckBoxValue("ksQ") && SpellManager.Q.IsReady())
+            else if (MenuManager.KillSteal.GetCheckBoxValue("ksQ") && SpellManager.Q.IsReady())
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
@@ -154,7 +155,7 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.Menu.GetCheckBoxValue("ksR") && SpellManager.R.IsReady())
+            if (MenuManager.KillSteal.GetCheckBoxValue("ksR") && SpellManager.R.IsReady())
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
@@ -170,7 +171,7 @@ namespace AbsoluteGaren
 
         public static void Destroyer()
         {
-            if (MenuManager.Menu.GetCheckBoxValue("destroy") && SpellManager.Q.IsReady())
+            if (MenuManager.Settings.GetCheckBoxValue("destroy") && SpellManager.Q.IsReady())
             {
                 List<GameObjectType> list = new List<GameObjectType> { GameObjectType.obj_AI_Turret,
                 GameObjectType.obj_Barracks, GameObjectType.obj_HQ};
@@ -196,7 +197,7 @@ namespace AbsoluteGaren
 
         public static void Passives()
         {
-            if (MenuManager.Menu.GetCheckBoxValue("cleanseQ") && SpellManager.Q.IsReady())
+            if (MenuManager.Settings.GetCheckBoxValue("cleanseQ") && SpellManager.Q.IsReady())
             {
                 if (_player.HasBuffOfType(BuffType.Slow))
                     SpellManager.Q.Cast();

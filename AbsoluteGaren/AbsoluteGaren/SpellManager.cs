@@ -51,5 +51,16 @@ namespace AbsoluteGaren
 
             return _player.CalculateDamageOnUnit(target, R.DamageType, R.GetSpellDamage(target));
         }
+
+        public static float FullDamage(Obj_AI_Base target)
+        {
+            float damage = 0;
+
+            damage += Q.IsReady() ? QDamage(target) : 0;
+            damage += R.IsReady() ? RDamage(target) : 0;
+            damage += _player.GetAutoAttackDamage(target) * MenuManager.Drawing.GetSliderValue("renderAA");
+
+            return damage;
+        }
     }
 }
