@@ -1,7 +1,5 @@
 ﻿using EloBuddy;
 using EloBuddy.SDK;
-using EloBuddy.SDK.Enumerations;
-using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 
 namespace AddonTemplate
