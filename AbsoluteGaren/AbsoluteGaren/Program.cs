@@ -1,20 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Color = System.Drawing.Color;
 using EloBuddy;
 using EloBuddy.SDK;
-using EloBuddy.SDK.Constants;
-using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
-using EloBuddy.SDK.Menu;
-using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
-using EloBuddy.SDK.Spells;
-using SharpDX;
+
 
 namespace AbsoluteGaren
 {
@@ -52,6 +43,7 @@ namespace AbsoluteGaren
         private static void Game_OnTick(EventArgs args)
         {
             MenuManager.MenuConfig();
+            SpellManager.SpellConfig();
 
             if (Player.Instance.IsAlive())
             {
@@ -79,10 +71,11 @@ namespace AbsoluteGaren
         {
             if (_player.IsAlive())
             {
-                if (MenuManager.Drawing.GetCheckBoxValue("killable"))
+                if (MenuManager.Rendering.GetCheckBoxValue("killable"))
                 {
                     foreach (AIHeroClient target in EntityManager.Heroes.Enemies
-                        .Where(a => a.IsValidTarget() && a.Health <= SpellManager.FullDamage(a) + _player.GetActiveItemDamage(a)))
+                        .Where(a => a.IsValidTarget() 
+                        && a.Health <= SpellManager.FullDamage(a) + _player.GetActiveItemDamage(a)))
                         Drawing.DrawText(target.Position.WorldToScreen(), Color.Red, "Killable", 15);
                 }
             }
@@ -90,29 +83,50 @@ namespace AbsoluteGaren
 
         private static void Drawing_OnEndScene(EventArgs args)
         {
-            if (_player.IsAlive()
-                && MenuManager.Drawing.GetCheckBoxValue("render"))
+            if (_player.IsAlive())
             {
-                foreach (AIHeroClient target in EntityManager.Heroes.Enemies.Where(a => a.IsValidTarget()))
+                /*if (MenuManager.Rendering.GetCheckBoxValue("renderP"))
                 {
                     float damage = 0;
-                    int targetHPBarWidth = 96;
 
-                    if (MenuManager.Drawing.GetCheckBoxValue("renderS"))
-                        damage += SpellManager.FullDamage(target);
+                    if (_player.IsHPBarRendered)
+                    {
+                        if (MenuManager.Rendering.GetCheckBoxValue("renderI_heal"))
+                            damage += _player.GetActiveItemHealing();
 
-                    if (MenuManager.Drawing.GetCheckBoxValue("renderI"))
-                        damage += _player.GetActiveItemDamage(target);
+                        _player.RenderHPBar(damage);
+                    }
+                }
 
-                    float targetDamageAmount = Math.Max((100 * (target.Health - damage)) / target.MaxHealth, 0);
+                if (MenuManager.Rendering.GetCheckBoxValue("renderA"))
+                {
+                    float damage = 0;
+                    List<Obj_AI_Base> units = EntityManager.Heroes.Allies.ToObj_AI_BaseList();
 
-                    Vector2 targetHPBarOffset = new Vector2(2, 9.5f);
-                    Vector2 targetHPCurrentOffset = target.HPBarPosition + targetHPBarOffset
-                        + new Vector2(100 * target.HealthPercent / targetHPBarWidth, 0);
-                    Vector2 targetHPEndOffset = target.HPBarPosition + targetHPBarOffset
-                        + new Vector2(targetDamageAmount, 0);
+                    foreach (AIHeroClient unit in units.Where(a => a.IsValidTarget() && a.IsHPBarRendered))
+                    {
+                        if (MenuManager.Rendering.GetCheckBoxValue("renderI_heal"))
+                            damage += _player.GetActiveItemHealing();
 
-                    Drawing.DrawLine(targetHPCurrentOffset, targetHPEndOffset, 9, Color.Yellow);
+                        unit.RenderHPBar(damage);
+                    }
+                }*/
+
+                if (MenuManager.Rendering.GetCheckBoxValue("renderE"))
+                {
+                    float damage = 0;
+                    List<Obj_AI_Base> units = EntityManager.Heroes.Enemies.ToObj_AI_BaseList();
+
+                    foreach (AIHeroClient unit in units.Where(a => a.IsValidTarget() && a.IsHPBarRendered))
+                    {
+                        if (MenuManager.Rendering.GetCheckBoxValue("renderS_dmg"))
+                            damage += SpellManager.FullDamage(unit);
+
+                        if (MenuManager.Rendering.GetCheckBoxValue("renderI_dmg"))
+                            damage += _player.GetActiveItemDamage(unit);
+
+                        unit.RenderHPBar(damage);
+                    }
                 }
             }
         }

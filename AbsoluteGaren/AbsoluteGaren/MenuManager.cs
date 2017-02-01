@@ -1,26 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Color = System.Drawing.Color;
-using EloBuddy;
-using EloBuddy.SDK;
-using EloBuddy.SDK.Constants;
-using EloBuddy.SDK.Enumerations;
-using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
-using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
-using EloBuddy.SDK.Spells;
-using SharpDX;
 
 namespace AbsoluteGaren
 {
     class MenuManager
     {
-        public static Menu mainMenu, Combo, LaneClear, LastHit, JungleClear, KillSteal, Drawing, Settings;
+        public static Menu mainMenu, Combo, LaneClear, LastHit, JungleClear, KillSteal, Rendering, Settings;
         public static int percentHealth;
 
         public static void Initialize()
@@ -31,7 +16,7 @@ namespace AbsoluteGaren
             LastHit = mainMenu.AddSubMenu("LastHit", "LastHitMenu");
             JungleClear = mainMenu.AddSubMenu("JungleClear", "JungleClearMenu");
             KillSteal = mainMenu.AddSubMenu("KillSteal", "KillStealMenu");
-            Drawing = mainMenu.AddSubMenu("Drawing", "DrawingMenu");
+            Rendering = mainMenu.AddSubMenu("Rendering", "RenderingMenu");
             Settings = mainMenu.AddSubMenu("Settings", "SettingsMenu");
 
             mainMenu.AddGroupLabel("Created by Counter");
@@ -43,7 +28,7 @@ namespace AbsoluteGaren
             Combo.AddCheckBox("comboE", "Use E");
             
             LaneClear.AddGroupLabel("LaneClear Features");
-            LaneClear.AddCheckBox("laneQ", "Use Q");
+            LaneClear.AddCheckBox("laneQ", "Use Q", false);
             LaneClear.AddCheckBox("laneE", "Use E");
             
             LastHit.AddGroupLabel("LastHit Features");
@@ -58,16 +43,20 @@ namespace AbsoluteGaren
             KillSteal.AddCheckBox("ksQ", "KS with Q");
             KillSteal.AddCheckBox("ksR", "KS with R");
             
-            Drawing.AddGroupLabel("Drawing Features");
-            Drawing.AddCheckBox("render", "Render Health Bar");
-            Drawing.AddCheckBox("killable", "Display 'Killable' text");
-            Drawing.AddLabel("Rendering Configurations");
-            Drawing.AddCheckBox("renderS", "Render Spell damage");
-            Drawing.AddCheckBox("renderI", "Render Item damage");
-            Drawing.AddSlider("renderAA", "Render Auto Attack damage", 2, 0, 5);
+            Rendering.AddGroupLabel("Rendering Features");
+            //Rendering.AddCheckBox("renderP", "Render Player HP Bar");
+            //Rendering.AddCheckBox("renderA", "Render Ally HP Bar");
+            Rendering.AddCheckBox("renderE", "Render Enemy HP Bar");
+            Rendering.AddCheckBox("killable", "Display 'Killable' text");
+            Rendering.AddLabel("Rendering Configurations");
+            Rendering.AddCheckBox("renderS_dmg", "Render Spell damage");
+            Rendering.AddCheckBox("renderI_dmg", "Render Item damage");
+            Rendering.AddSlider("renderAA", "Render Basic Attack damage", 2, 0, 5);
+            //Rendering.AddCheckBox("renderS_heal", "Render Spell healing");
+            //Rendering.AddCheckBox("renderI_heal", "Render Item healing");
 
             Settings.AddGroupLabel("Settings Features");
-            Settings.AddCheckBox("cleanseQ", "Cleanse Slows with Q");
+            Settings.AddCheckBox("cleanseQ", "Cleanse Slows with Q", false);
             Settings.AddCheckBox("destroy", "Destroy structures with Q");
             Settings.AddSlider("percentQ", "Save Q for ks when unit Health percent >= ", 35, 0, 100);
 

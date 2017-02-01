@@ -1,28 +1,108 @@
-﻿using EloBuddy;
+﻿using Color = System.Drawing.Color;
+using EloBuddy;
 using EloBuddy.SDK;
-using EloBuddy.SDK.Constants;
-using EloBuddy.SDK.Enumerations;
-using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
-using EloBuddy.SDK.Spells;
-using EloBuddy.SDK.ThirdParty;
-using EloBuddy.SDK.ThirdParty.Glide;
-using EloBuddy.SDK.Utils;
-using SharpDX;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Color = System.Drawing.Color;
+using SharpDX;
 
 namespace AbsoluteGaren
 {
     static class Extensions
-    {        
+    {
+        #region Count
+        /// <summary>
+        /// Returns the amount of Jungle Creatures in a desired range.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static float CountJungleCreaturesInRange(this Obj_AI_Base sender, float range)
+        {
+            return EntityManager.MinionsAndMonsters.Monsters.Count(a => a.IsValidTarget() && a.IsInRange(sender, range));
+        }
+        #endregion
+
+        #region Calculations
+        /// <summary>
+        /// Returns the amount of active item calculated damage.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static float GetActiveItemDamage(this AIHeroClient sender, Obj_AI_Base target)
+        {
+            float damage = 0;
+            List<ItemId> itemList = new List<ItemId>
+            {
+                ItemId.Bilgewater_Cutlass,
+                ItemId.Blade_of_the_Ruined_King,
+                ItemId.Hextech_Gunblade,
+                ItemId.Hextech_Protobelt_01,
+                ItemId.Redemption,
+                ItemId.Ravenous_Hydra,
+                ItemId.Titanic_Hydra,
+                ItemId.Tiamat
+            };
+
+            foreach (ItemId id in itemList)
+            {
+                InventorySlot item = sender.InventoryItems.FirstOrDefault(a => a.Id == id);
+
+                if (item != null && item.CanUseItem())
+                    damage += DamageLibrary.GetItemDamage(sender, target, id);
+            }
+
+            return damage;
+        }
+
+        public static float GetActiveItemHealing(this AIHeroClient sender)
+        {
+            float healing = 0;
+            List<ItemId> itemList = new List<ItemId>
+            {
+                ItemId.Blade_of_the_Ruined_King,
+                ItemId.Corrupting_Potion,
+                ItemId.Health_Potion,
+                ItemId.Redemption,
+                ItemId.Refillable_Potion
+            };
+
+            foreach (ItemId id in itemList)
+            {
+                InventorySlot item = sender.InventoryItems.FirstOrDefault(a => a.Id == id);
+                
+                if (item != null && item.CanUseItem())
+                {
+                    if (item.Id.Equals(ItemId.Blade_of_the_Ruined_King))
+                    {
+                        Obj_AI_Base target = EntityManager.Heroes.Enemies
+                            .OrderByDescending(a => a.Health)
+                            .Where(a => a.IsValidTarget(550)).FirstOrDefault();
+
+                        if (target != null)
+                            healing += sender.GetItemDamage(target, id);
+                    }
+                    if (item.Id.Equals(ItemId.Corrupting_Potion))
+                        healing += 125 * item.Stacks;
+                    if (item.Id.Equals(ItemId.Health_Potion))
+                        healing += 150;
+                    if (item.Id.Equals(ItemId.Redemption))
+                            healing += 40 + (25 * sender.Level);
+                    if (item.Id.Equals(ItemId.Refillable_Potion))
+                        healing += 125 * item.Stacks;
+                }  
+            }
+
+            if (sender.HasItem(ItemId.Spirit_Visage))
+                healing *= 1.25f;
+
+            return healing;
+        }
+        #endregion
+
         #region Menu
         /// <summary>
         /// Generates a Checkbox to a specified Menu object.
@@ -222,16 +302,33 @@ namespace AbsoluteGaren
         }
         #endregion
 
-        #region Count
-        /// <summary>
-        /// Returns the amount of Jungle Creatures in a desired range.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="range"></param>
-        /// <returns></returns>
-        public static float CountJungleCreaturesInRange(this Obj_AI_Base sender, float range)
+        #region Rendering
+        public static void RenderHPBar(this Obj_AI_Base unit, float amount)
         {
-            return EntityManager.MinionsAndMonsters.Monsters.Count(a => a.IsValidTarget() && a.IsInRange(sender, range));
+            float unitHPBarWidth = 96;
+            float unitAmount = 0;
+            Vector2 unitHPBarOffset = Vector2.Zero;
+            Vector2 unitHPCurrentOffset = Vector2.Zero;
+            Vector2 unitHPEndOffset = Vector2.Zero;
+
+            if (unit.IsEnemy)
+            {
+                unitAmount = Math.Max((100 * ((unit.Health - amount) / unit.MaxHealth)), 0);
+                unitHPBarOffset = new Vector2(2, 9f);
+                unitHPCurrentOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unit.HealthPercent / unitHPBarWidth, 0);
+                unitHPEndOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(unitAmount, 0);
+
+                Drawing.DrawLine(unitHPCurrentOffset, unitHPEndOffset, 9, Color.DarkRed);
+            }
+            else
+            {
+                unitAmount = Math.Min(100 * (unit.Health + amount) / unit.MaxHealth, 100);
+                unitHPBarOffset = new Vector2(26, 7f);
+                unitHPCurrentOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unit.HealthPercent / unitHPBarWidth, 0);
+                unitHPEndOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unitAmount / unitHPBarWidth, 0);
+
+                Drawing.DrawLine(unitHPCurrentOffset, unitHPEndOffset, 9, Color.YellowGreen);
+            }
         }
         #endregion
 
@@ -283,34 +380,6 @@ namespace AbsoluteGaren
                 Console.WriteLine("This object isn't initialized to an instance.");
                 return false;
             }
-        }
-        #endregion
-
-        #region Calculations
-        public static float GetActiveItemDamage(this AIHeroClient sender, Obj_AI_Base target)
-        {
-            float damage = 0;
-            List<ItemId> itemList = new List<ItemId>
-            {
-                ItemId.Bilgewater_Cutlass,
-                ItemId.Blade_of_the_Ruined_King,
-                ItemId.Hextech_Gunblade,
-                ItemId.Hextech_Protobelt_01,
-                ItemId.Redemption,
-                ItemId.Ravenous_Hydra,
-                ItemId.Titanic_Hydra,
-                ItemId.Tiamat
-            };
-
-            foreach (ItemId id in itemList)
-            {
-                InventorySlot item = sender.InventoryItems.FirstOrDefault(a => a.Id == id);
-
-                if (item != null && item.CanUseItem())
-                    damage += DamageLibrary.GetItemDamage(sender, target, id);
-            }
-
-            return damage;
         }
         #endregion
     }

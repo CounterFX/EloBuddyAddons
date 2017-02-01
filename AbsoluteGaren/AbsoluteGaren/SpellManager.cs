@@ -1,20 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Color = System.Drawing.Color;
 using EloBuddy;
 using EloBuddy.SDK;
-using EloBuddy.SDK.Constants;
-using EloBuddy.SDK.Enumerations;
-using EloBuddy.SDK.Events;
-using EloBuddy.SDK.Menu;
-using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
-using EloBuddy.SDK.Spells;
-using SharpDX;
 
 namespace AbsoluteGaren
 {
@@ -23,6 +9,8 @@ namespace AbsoluteGaren
         public static Spell.Active Q, W, E;
         public static Spell.Targeted R;
         static AIHeroClient _player;
+        public static bool QActive;
+        public static bool EActive;
 
         public static void Initialize()
         {
@@ -35,6 +23,9 @@ namespace AbsoluteGaren
             R = new Spell.Targeted(SpellSlot.R, 400, DamageType.Magical);
 
             _player = Player.Instance;
+
+            QActive = false;
+            EActive = false;
 
             Console.WriteLine("SpellManager initialized.");
         }
@@ -56,11 +47,19 @@ namespace AbsoluteGaren
         {
             float damage = 0;
 
-            damage += Q.IsReady() ? QDamage(target) : 0;
-            damage += R.IsReady() ? RDamage(target) : 0;
-            damage += _player.GetAutoAttackDamage(target) * MenuManager.Drawing.GetSliderValue("renderAA");
+            damage += Q.IsReady() && !Q.IsOnCooldown ? QDamage(target) : 0;
+            damage += R.IsReady() && !R.IsOnCooldown ? RDamage(target) : 0;
+            damage += _player.GetAutoAttackDamage(target) * MenuManager.Rendering.GetSliderValue("renderAA");
 
             return damage;
+        }
+
+        public static void SpellConfig()
+        {
+            if (Q.IsOnCooldown)
+                QActive = false;
+            
+            EActive = E.Name == "GarenECancel" ? true : false;
         }
     }
 }
