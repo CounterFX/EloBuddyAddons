@@ -6,11 +6,11 @@ namespace AbsoluteGaren
 {
     class SpellManager
     {
+        public static AIHeroClient _player;
         public static Spell.Active Q, W, E;
         public static Spell.Targeted R;
-        static AIHeroClient _player;
-        public static bool QActive;
-        public static bool EActive;
+        public static bool HasQActive;
+        public static bool IsSpinning;
 
         public static void Initialize()
         {
@@ -22,10 +22,8 @@ namespace AbsoluteGaren
             E = new Spell.Active(SpellSlot.E, 300, DamageType.Physical);
             R = new Spell.Targeted(SpellSlot.R, 400, DamageType.Magical);
 
-            _player = Player.Instance;
-
-            QActive = false;
-            EActive = false;
+            HasQActive = false;
+            IsSpinning = false;
 
             Console.WriteLine("SpellManager initialized.");
         }
@@ -47,19 +45,20 @@ namespace AbsoluteGaren
         {
             float damage = 0;
 
-            damage += Q.IsReady() && !Q.IsOnCooldown ? QDamage(target) : 0;
-            damage += R.IsReady() && !R.IsOnCooldown ? RDamage(target) : 0;
-            damage += _player.GetAutoAttackDamage(target) * MenuManager.Rendering.GetSliderValue("renderAA");
+            damage += Q.IsReady() ? QDamage(target) : 0;
+            damage += R.IsReady() ? RDamage(target) : 0;
+            damage += Orbwalker.CanAutoAttack ? _player.GetAutoAttackDamage(target)
+                * MenuManager.Rendering.GetSliderValue("renderAA") : 0;
 
             return damage;
         }
 
         public static void SpellConfig()
         {
-            if (Q.IsOnCooldown)
-                QActive = false;
-            
-            EActive = E.Name == "GarenECancel" ? true : false;
+            HasQActive = _player.HasBuff("GarenQ");
+            IsSpinning = _player.HasBuff("GarenE");
+
+            Orbwalker.DisableAttacking = _player.HasBuff("GarenE");
         }
     }
 }

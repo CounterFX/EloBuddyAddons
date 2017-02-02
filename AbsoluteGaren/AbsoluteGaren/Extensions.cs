@@ -306,26 +306,26 @@ namespace AbsoluteGaren
         public static void RenderHPBar(this Obj_AI_Base unit, float amount)
         {
             float unitHPBarWidth = 96;
-            float unitAmount = 0;
+            float unitHPBarAmount = 0;
             Vector2 unitHPBarOffset = Vector2.Zero;
             Vector2 unitHPCurrentOffset = Vector2.Zero;
             Vector2 unitHPEndOffset = Vector2.Zero;
 
             if (unit.IsEnemy)
             {
-                unitAmount = Math.Max((100 * ((unit.Health - amount) / unit.MaxHealth)), 0);
-                unitHPBarOffset = new Vector2(2, 9f);
+                unitHPBarAmount = Math.Max((100 * ((unit.Health - amount) / unit.MaxHealth)), 0);
+                unitHPBarOffset = new Vector2(unit.HPBarXOffset, unit.HPBarYOffset);
                 unitHPCurrentOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unit.HealthPercent / unitHPBarWidth, 0);
-                unitHPEndOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(unitAmount, 0);
+                unitHPEndOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(unitHPBarAmount, 0);
 
                 Drawing.DrawLine(unitHPCurrentOffset, unitHPEndOffset, 9, Color.DarkRed);
             }
             else
             {
-                unitAmount = Math.Min(100 * (unit.Health + amount) / unit.MaxHealth, 100);
-                unitHPBarOffset = new Vector2(26, 7f);
+                unitHPBarAmount = Math.Max(100 * (unit.Health + amount) / unit.MaxHealth, 0);
+                unitHPBarOffset = new Vector2(unit.HPBarXOffset, unit.HPBarYOffset);
                 unitHPCurrentOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unit.HealthPercent / unitHPBarWidth, 0);
-                unitHPEndOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unitAmount / unitHPBarWidth, 0);
+                unitHPEndOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unitHPBarAmount / unitHPBarWidth, 0);
 
                 Drawing.DrawLine(unitHPCurrentOffset, unitHPEndOffset, 9, Color.YellowGreen);
             }

@@ -13,78 +13,87 @@ namespace AbsoluteGaren
         public static void Combo()
         {
             if (MenuManager.Combo.GetCheckBoxValue("comboQ") && SpellManager.Q.IsReady()
-                && !SpellManager.EActive)
+                && _player.CountEnemyChampionsInRange(_player.GetAutoAttackRange()) > 0
+                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget(_player.GetAutoAttackRange())
-                    && _player.IsInRange(a, _player.GetAutoAttackRange())
-                    && a.Health >= MenuManager.percentHealth
-                    && Game.Time - LastAutoTime < 0.1f
+                    .Where(a => a.IsValidTarget()
+                        && _player.IsInRange(a, _player.GetAutoAttackRange())
+                        && a.HealthPercent >= MenuManager.percentHealth
+                        /*&& Game.Time - LastAutoTime < 0.1f*/
                     ).FirstOrDefault();
 
                 if (target != null)
                 {
                     SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                 }
             }
 
             if (MenuManager.Combo.GetCheckBoxValue("comboE") && SpellManager.E.IsReady()
-                && !SpellManager.QActive && !SpellManager.EActive
-                && _player.CountEnemyChampionsInRange(SpellManager.E.Range) > 0)
+                && _player.CountEnemyChampionsInRange(SpellManager.E.Range) > 0
+                && !SpellManager.IsSpinning)
+            {
                 SpellManager.E.Cast();
+            }
         }
 
         public static void LaneClear()
         {
-            if (Orbwalker.IsAutoAttacking) return;
-
             if (MenuManager.LaneClear.GetCheckBoxValue("laneQ") && SpellManager.Q.IsReady()
-                && !SpellManager.EActive)
+                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
             {
-                Obj_AI_Base target = EntityManager.MinionsAndMonsters.EnemyMinions
+                List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
+
+                targets.AddRange(EntityManager.MinionsAndMonsters.EnemyMinions.ToObj_AI_BaseList());
+                targets.AddRange(EntityManager.MinionsAndMonsters.OtherEnemyMinions.ToObj_AI_BaseList());
+
+                Obj_AI_Base target = targets
                     .OrderBy(a => a.Health)
                     .Where(a => a.IsValidTarget()
-                    && _player.IsInAutoAttackRange(a)
-                    && ((a.HealthPercent >= MenuManager.percentHealth
-                    && Game.Time - LastAutoTime < 0.1f)
-                    || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
+                        && _player.IsInRange(a, _player.GetAutoAttackRange())
+                        && ((a.HealthPercent >= MenuManager.percentHealth /*&& Game.Time - LastAutoTime < 0.1f*/)
+                        || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
                     ).FirstOrDefault();
 
                 if (target != null)
                 {
                     SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                 }
             }
 
             if (MenuManager.LaneClear.GetCheckBoxValue("laneE") && SpellManager.E.IsReady()
-                && !SpellManager.QActive && !SpellManager.EActive
-                && _player.CountEnemyMinionsInRange(SpellManager.E.Range) > 1)
+                && _player.CountEnemyMinionsInRange(SpellManager.E.Range) > 1
+                && !SpellManager.IsSpinning)
+            {
                 SpellManager.E.Cast();
+            }
         }
 
         public static void LastHit()
         {
             if (MenuManager.LastHit.GetCheckBoxValue("lasthitQ") && SpellManager.Q.IsReady()
-                && !SpellManager.EActive)
+                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
             {
-                Obj_AI_Base target = EntityManager.MinionsAndMonsters.EnemyMinions
-                    .OrderByDescending(a => a.FlatGoldRewardMod)
-                    .ThenBy(a => a.Health)
+                List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
+
+                targets.AddRange(EntityManager.MinionsAndMonsters.EnemyMinions.ToObj_AI_BaseList());
+                targets.AddRange(EntityManager.MinionsAndMonsters.Monsters.ToObj_AI_BaseList());
+                targets.AddRange(EntityManager.MinionsAndMonsters.OtherEnemyMinions.ToObj_AI_BaseList());
+
+                Obj_AI_Base target = targets
+                    .OrderBy(a => a.Health)
                     .Where(a => a.IsValidTarget()
-                    && _player.IsInAutoAttackRange(a)
-                    && a.Health > _player.GetAutoAttackDamage(a)
-                    && a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a)
+                        && _player.IsInRange(a, _player.GetAutoAttackRange())
+                        && a.Health > _player.GetAutoAttackDamage(a)
+                        && a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a)
                     ).FirstOrDefault();
 
                 if (target != null)
                 {
                     SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                 }
             }
@@ -93,77 +102,74 @@ namespace AbsoluteGaren
         public static void JungleClear()
         {
             if (MenuManager.JungleClear.GetCheckBoxValue("jungleQ") && SpellManager.Q.IsReady()
-                && !SpellManager.EActive)
+                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.MinionsAndMonsters.Monsters
                     .OrderBy(a => a.Health)
                     .Where(a => a.IsValidTarget()
-                    && a.IsLargeMonster()
-                    && _player.IsInAutoAttackRange(a)
-                    && ((a.HealthPercent >= MenuManager.percentHealth
-                    && Game.Time - LastAutoTime < 0.1f)
-                    || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
+                        && _player.IsInRange(a, _player.GetAutoAttackRange())
+                        && a.IsLargeMonster()
+                        && ((a.HealthPercent >= MenuManager.percentHealth/*&& Game.Time - LastAutoTime < 0.1f*/)
+                        || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
                     ).FirstOrDefault();
 
                 if (target != null)
                 {
                     SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                 }
             }
 
             if (MenuManager.JungleClear.GetCheckBoxValue("jungleE") && SpellManager.E.IsReady()
-                && !SpellManager.QActive && !SpellManager.EActive
-                && _player.CountJungleCreaturesInRange(SpellManager.E.Range) > 1)
+                && _player.CountJungleCreaturesInRange(SpellManager.E.Range) > 1
+                && !SpellManager.IsSpinning)
+            {
                 SpellManager.E.Cast();
+            }
         }
 
         public static void KillSteal()
         {
             if (MenuManager.KillSteal.GetCheckBoxValue("ksAA")
-                && !SpellManager.QActive && !SpellManager.EActive)
+                && Orbwalker.CanAutoAttack && !SpellManager.HasQActive && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget(_player.GetAutoAttackRange())
-                    && _player.IsInRange(a, _player.GetAutoAttackRange())
-                    && a.Health <= _player.GetAutoAttackDamage(a)
+                    .Where(a => a.IsValidTarget()
+                        && _player.IsInRange(a, _player.GetAutoAttackRange())
+                        && a.Health <= _player.GetAutoAttackDamage(a)
                     ).FirstOrDefault();
 
                 if (target != null)
-                {
-                    SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                }
             }
             else if (MenuManager.KillSteal.GetCheckBoxValue("ksQ") && SpellManager.Q.IsReady()
-                && !SpellManager.EActive)
+                && _player.CountEnemyChampionsInRange(_player.GetAutoAttackRange()) > 0
+                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget(_player.GetAutoAttackRange())
-                    && _player.IsInRange(a, _player.GetAutoAttackRange())
-                    && a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a)
+                    .Where(a => a.IsValidTarget()
+                        && _player.IsInRange(a, _player.GetAutoAttackRange())
+                        && a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a)
                     ).FirstOrDefault();
 
                 if (target != null)
                 {
                     SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                 }
             }
 
             if (MenuManager.KillSteal.GetCheckBoxValue("ksR") && SpellManager.R.IsReady()
-                && !SpellManager.EActive)
+                && _player.CountEnemyChampionsInRange(SpellManager.R.Range) > 0)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
-                    .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget(SpellManager.R.Range)
-                    && _player.IsInRange(a, SpellManager.R.Range)
-                    && a.Health <= SpellManager.RDamage(a)
+                    .OrderBy(a => a.HasBuff("garenpassiveenemytarget"))
+                    .ThenBy(a => a.Health)
+                    .Where(a => a.IsValidTarget()
+                        && _player.IsInRange(a, SpellManager.R.Range)
+                        && a.Health <= SpellManager.RDamage(a)
                     ).FirstOrDefault();
 
                 if (target != null)
@@ -171,44 +177,53 @@ namespace AbsoluteGaren
             }
         }
 
+        public static void Follower()
+        {
+            if (SpellManager.IsSpinning)
+            {
+                // OrbWalker moves Garen to best pos to hurt all nearby listed units
+            }
+        }
+
         public static void Destroyer()
         {
-            if (MenuManager.Settings.GetCheckBoxValue("destroy") && SpellManager.Q.IsReady()
-                && !SpellManager.EActive)
+            if (MenuManager.KillSteal.GetCheckBoxValue("destroy"))
             {
-                List<GameObjectType> list = new List<GameObjectType> { GameObjectType.obj_AI_Turret,
-                GameObjectType.obj_Barracks, GameObjectType.obj_HQ};
-
-                Obj_AI_Base turret = ObjectManager.Get<Obj_AI_Base>()
-                    .Where(a => a.IsValidTarget()
-                    && a.IsEnemy
-                    && list.Contains(a.Type)
-                    && _player.CountEnemyChampionsInRange(a.GetAutoAttackRange()) == 0
-                    && _player.IsInAutoAttackRange(a)
-                    && ((a.HealthPercent >= MenuManager.percentHealth
-                    && Game.Time - LastAutoTime < 0.1f)
-                    || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
-                    ).FirstOrDefault();
-
-                if (turret != null)
+                if (Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
                 {
-                    SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
+                    List<GameObjectType> list = new List<GameObjectType> { GameObjectType.obj_AI_Turret,
+                    GameObjectType.obj_Barracks, GameObjectType.obj_HQ};
+
+                    Obj_AI_Base turret = ObjectManager.Get<Obj_AI_Base>()
+                        .OrderBy(a => a.Health)
+                        .Where(a => a.Health > 0 && a.IsHPBarRendered
+                            && !a.IsInvulnerable
+                            && a.IsEnemy
+                            && list.Contains(a.Type)
+                            && _player.IsInRange(a, _player.GetAutoAttackRange())
+                        ).FirstOrDefault();
+
+                    if (turret != null && !SpellManager.HasQActive
+                        && (turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
+                            || turret.Health <= _player.GetAutoAttackDamage(turret))
+                        Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
+                    else if (turret != null && SpellManager.Q.IsReady()
+                        && ((turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
+                            || turret.Health <= _player.GetAutoAttackDamage(turret) + SpellManager.QDamage(turret)))
+                    {
+                        SpellManager.Q.Cast();
+                        Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
+                    }
                 }
             }
         }
 
         public static void Passives()
         {
-            if (MenuManager.Settings.GetCheckBoxValue("cleanseQ") && SpellManager.Q.IsReady()
-                && !SpellManager.EActive)
+            if (MenuManager.Settings.GetCheckBoxValue("cleanseQ") && SpellManager.Q.IsReady())
             {
                 if (_player.HasBuffOfType(BuffType.Slow))
-                {
                     SpellManager.Q.Cast();
-                    SpellManager.QActive = true;
-                }
             }
         }
     }
