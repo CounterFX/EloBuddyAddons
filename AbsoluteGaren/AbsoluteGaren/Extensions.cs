@@ -314,7 +314,7 @@ namespace AbsoluteGaren
             if (unit.IsEnemy)
             {
                 unitHPBarAmount = Math.Max((100 * ((unit.Health - amount) / unit.MaxHealth)), 0);
-                unitHPBarOffset = new Vector2(unit.HPBarXOffset, unit.HPBarYOffset);
+                unitHPBarOffset = new Vector2(unit.HPBarXOffset, unit.HPBarYOffset + 9.2f);
                 unitHPCurrentOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(100 * unit.HealthPercent / unitHPBarWidth, 0);
                 unitHPEndOffset = unit.HPBarPosition + unitHPBarOffset + new Vector2(unitHPBarAmount, 0);
 

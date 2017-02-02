@@ -60,15 +60,15 @@ namespace AbsoluteGaren
             Settings.AddCheckBox("destroy", "Destroy structures with Q");
             Settings.AddSlider("percentQ", "Save Q for ks when unit Health percent >= ", 35, 0, 100);
 
-            percentHealth = Settings.GetSliderValue("percentQ");
+            Settings.GetSliderObject("percentQ").OnValueChange += MenuManager_OnValueChange; ;
 
             Console.WriteLine("MenuManager initialized.");
         }
 
-        public static void MenuConfig()
+        static void MenuManager_OnValueChange(EloBuddy.SDK.Menu.Values.ValueBase<int> sender,
+            EloBuddy.SDK.Menu.Values.ValueBase<int>.ValueChangeArgs args)
         {
-            if (percentHealth != Settings.GetSliderValue("percentQ"))
-                percentHealth = Settings.GetSliderValue("percentQ");
+            percentHealth = args.NewValue;
         }
     }
 }

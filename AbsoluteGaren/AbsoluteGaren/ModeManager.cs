@@ -13,8 +13,7 @@ namespace AbsoluteGaren
         public static void Combo()
         {
             if (MenuManager.Combo.GetCheckBoxValue("comboQ") && SpellManager.Q.IsReady()
-                && _player.CountEnemyChampionsInRange(_player.GetAutoAttackRange()) > 0
-                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
+                && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
@@ -42,7 +41,7 @@ namespace AbsoluteGaren
         public static void LaneClear()
         {
             if (MenuManager.LaneClear.GetCheckBoxValue("laneQ") && SpellManager.Q.IsReady()
-                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
+                && !SpellManager.IsSpinning)
             {
                 List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
 
@@ -75,7 +74,7 @@ namespace AbsoluteGaren
         public static void LastHit()
         {
             if (MenuManager.LastHit.GetCheckBoxValue("lasthitQ") && SpellManager.Q.IsReady()
-                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
+                && !SpellManager.IsSpinning)
             {
                 List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
 
@@ -102,14 +101,14 @@ namespace AbsoluteGaren
         public static void JungleClear()
         {
             if (MenuManager.JungleClear.GetCheckBoxValue("jungleQ") && SpellManager.Q.IsReady()
-                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
+                && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.MinionsAndMonsters.Monsters
                     .OrderBy(a => a.Health)
                     .Where(a => a.IsValidTarget()
                         && _player.IsInRange(a, _player.GetAutoAttackRange())
                         && a.IsLargeMonster()
-                        && ((a.HealthPercent >= MenuManager.percentHealth/*&& Game.Time - LastAutoTime < 0.1f*/)
+                        && ((a.HealthPercent >= MenuManager.percentHealth)
                         || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
                     ).FirstOrDefault();
 
@@ -131,7 +130,7 @@ namespace AbsoluteGaren
         public static void KillSteal()
         {
             if (MenuManager.KillSteal.GetCheckBoxValue("ksAA")
-                && Orbwalker.CanAutoAttack && !SpellManager.HasQActive && !SpellManager.IsSpinning)
+                && !SpellManager.HasQActive && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
@@ -144,8 +143,7 @@ namespace AbsoluteGaren
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
             }
             else if (MenuManager.KillSteal.GetCheckBoxValue("ksQ") && SpellManager.Q.IsReady()
-                && _player.CountEnemyChampionsInRange(_player.GetAutoAttackRange()) > 0
-                && Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
+                && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
@@ -177,43 +175,31 @@ namespace AbsoluteGaren
             }
         }
 
-        public static void Follower()
-        {
-            if (SpellManager.IsSpinning)
-            {
-                // OrbWalker moves Garen to best pos to hurt all nearby listed units
-            }
-        }
-
         public static void Destroyer()
         {
-            if (MenuManager.KillSteal.GetCheckBoxValue("destroy"))
+            if (MenuManager.Settings.GetCheckBoxValue("destroy") && !SpellManager.IsSpinning)
             {
-                if (Orbwalker.CanAutoAttack && !SpellManager.IsSpinning)
+                List<GameObjectType> list = new List<GameObjectType> { GameObjectType.obj_AI_Turret,
+                GameObjectType.obj_Barracks, GameObjectType.obj_HQ};
+
+                Obj_AI_Base turret = ObjectManager.Get<Obj_AI_Base>()
+                .Where(a => list.Contains(a.Type)
+                    && a.IsValid && a.IsHPBarRendered
+                    && !a.IsInvulnerable
+                    && a.IsEnemy
+                    && _player.IsInRange(a, _player.GetAutoAttackRange())
+                ).FirstOrDefault();
+
+                if (turret != null && !SpellManager.HasQActive
+                    && ((turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
+                        || turret.Health <= _player.GetAutoAttackDamage(turret)))
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
+                else if (turret != null && SpellManager.Q.IsReady()
+                    && ((turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
+                        || turret.Health <= _player.GetAutoAttackDamage(turret) + SpellManager.QDamage(turret)))
                 {
-                    List<GameObjectType> list = new List<GameObjectType> { GameObjectType.obj_AI_Turret,
-                    GameObjectType.obj_Barracks, GameObjectType.obj_HQ};
-
-                    Obj_AI_Base turret = ObjectManager.Get<Obj_AI_Base>()
-                        .OrderBy(a => a.Health)
-                        .Where(a => a.Health > 0 && a.IsHPBarRendered
-                            && !a.IsInvulnerable
-                            && a.IsEnemy
-                            && list.Contains(a.Type)
-                            && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        ).FirstOrDefault();
-
-                    if (turret != null && !SpellManager.HasQActive
-                        && (turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
-                            || turret.Health <= _player.GetAutoAttackDamage(turret))
-                        Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
-                    else if (turret != null && SpellManager.Q.IsReady()
-                        && ((turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
-                            || turret.Health <= _player.GetAutoAttackDamage(turret) + SpellManager.QDamage(turret)))
-                    {
-                        SpellManager.Q.Cast();
-                        Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
-                    }
+                    SpellManager.Q.Cast();
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
                 }
             }
         }

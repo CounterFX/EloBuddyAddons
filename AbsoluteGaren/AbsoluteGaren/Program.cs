@@ -40,7 +40,6 @@ namespace AbsoluteGaren
 
         static void Game_OnTick(EventArgs args)
         {
-            MenuManager.MenuConfig();
             SpellManager.SpellConfig();
 
             if (_player.IsDead) return;
@@ -56,7 +55,6 @@ namespace AbsoluteGaren
                 if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
                     ModeManager.JungleClear();
                 
-                ModeManager.Follower();
                 ModeManager.Destroyer();
                 ModeManager.Passives();
             }
