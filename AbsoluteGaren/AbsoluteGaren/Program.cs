@@ -73,8 +73,7 @@ namespace AbsoluteGaren
 
             if (MenuManager.Rendering.GetCheckBoxValue("killable"))
             {
-                foreach (AIHeroClient target in EntityManager.Heroes.Enemies
-                    .Where(a => a.IsValidTarget()
+                foreach (AIHeroClient target in EntityManager.Heroes.Enemies.Where(a => a.IsValidTarget()
                     && a.Health <= SpellManager.FullDamage(a) + _player.GetActiveItemDamage(a)))
                 {
                     Drawing.DrawText(target.Position.WorldToScreen(), Color.Red, "Killable", 15);
@@ -86,7 +85,7 @@ namespace AbsoluteGaren
         {
             if (_player.IsDead) return;
 
-            if (MenuManager.Rendering.GetCheckBoxValue("renderE"))
+            if (MenuManager.Rendering.GetCheckBoxValue("E"))
             {
                 List<Obj_AI_Base> units = EntityManager.Heroes.Enemies.ToObj_AI_BaseList();
 
@@ -94,9 +93,9 @@ namespace AbsoluteGaren
                 {
                     float damage = 0;
 
-                    if (MenuManager.Rendering.GetCheckBoxValue("renderS_dmg"))
+                    if (MenuManager.Rendering.GetCheckBoxValue("spell_dmg"))
                         damage += SpellManager.FullDamage(target);
-                    if (MenuManager.Rendering.GetCheckBoxValue("renderI_dmg"))
+                    if (MenuManager.Rendering.GetCheckBoxValue("item_dmg"))
                         damage += _player.GetActiveItemDamage(target);
 
                     target.RenderHPBar(damage);

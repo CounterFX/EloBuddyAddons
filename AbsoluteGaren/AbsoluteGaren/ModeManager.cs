@@ -12,7 +12,7 @@ namespace AbsoluteGaren
 
         public static void Combo()
         {
-            if (MenuManager.Combo.GetCheckBoxValue("comboQ") && SpellManager.Q.IsReady()
+            if (MenuManager.Combo.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
                 && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
@@ -20,7 +20,7 @@ namespace AbsoluteGaren
                     .Where(a => a.IsValidTarget()
                         && _player.IsInRange(a, _player.GetAutoAttackRange())
                         && a.HealthPercent >= MenuManager.percentHealth
-                        /*&& Game.Time - LastAutoTime < 0.1f*/
+                        && LastAutoTime.IsWithinTime(0.5f)
                     ).FirstOrDefault();
 
                 if (target != null)
@@ -30,7 +30,7 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.Combo.GetCheckBoxValue("comboE") && SpellManager.E.IsReady()
+            if (MenuManager.Combo.GetCheckBoxValue("E") && SpellManager.E.IsReady()
                 && _player.CountEnemyChampionsInRange(SpellManager.E.Range) > 0
                 && !SpellManager.IsSpinning)
             {
@@ -40,7 +40,7 @@ namespace AbsoluteGaren
 
         public static void LaneClear()
         {
-            if (MenuManager.LaneClear.GetCheckBoxValue("laneQ") && SpellManager.Q.IsReady()
+            if (MenuManager.LaneClear.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
                 && !SpellManager.IsSpinning)
             {
                 List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
@@ -52,7 +52,7 @@ namespace AbsoluteGaren
                     .OrderBy(a => a.Health)
                     .Where(a => a.IsValidTarget()
                         && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        && ((a.HealthPercent >= MenuManager.percentHealth /*&& Game.Time - LastAutoTime < 0.1f*/)
+                        && ((a.HealthPercent >= MenuManager.percentHealth && LastAutoTime.IsWithinTime(0.5f))
                         || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
                     ).FirstOrDefault();
 
@@ -63,7 +63,7 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.LaneClear.GetCheckBoxValue("laneE") && SpellManager.E.IsReady()
+            if (MenuManager.LaneClear.GetCheckBoxValue("E") && SpellManager.E.IsReady()
                 && _player.CountEnemyMinionsInRange(SpellManager.E.Range) > 1
                 && !SpellManager.IsSpinning)
             {
@@ -73,7 +73,7 @@ namespace AbsoluteGaren
 
         public static void LastHit()
         {
-            if (MenuManager.LastHit.GetCheckBoxValue("lasthitQ") && SpellManager.Q.IsReady()
+            if (MenuManager.LastHit.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
                 && !SpellManager.IsSpinning)
             {
                 List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
@@ -100,7 +100,7 @@ namespace AbsoluteGaren
 
         public static void JungleClear()
         {
-            if (MenuManager.JungleClear.GetCheckBoxValue("jungleQ") && SpellManager.Q.IsReady()
+            if (MenuManager.JungleClear.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
                 && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.MinionsAndMonsters.Monsters
@@ -119,8 +119,8 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.JungleClear.GetCheckBoxValue("jungleE") && SpellManager.E.IsReady()
-                && _player.CountJungleCreaturesInRange(SpellManager.E.Range) > 1
+            if (MenuManager.JungleClear.GetCheckBoxValue("E") && SpellManager.E.IsReady()
+                && _player.CountMonstersInRange(SpellManager.E.Range) > 1
                 && !SpellManager.IsSpinning)
             {
                 SpellManager.E.Cast();
@@ -129,20 +129,19 @@ namespace AbsoluteGaren
 
         public static void KillSteal()
         {
-            if (MenuManager.KillSteal.GetCheckBoxValue("ksAA")
+            if (MenuManager.KillSteal.GetCheckBoxValue("AA")
                 && !SpellManager.HasQActive && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
                     .OrderBy(a => a.Health)
                     .Where(a => a.IsValidTarget()
-                        && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        && a.Health <= _player.GetAutoAttackDamage(a)
+                        && _player.CanKillWithBasicAttack(a)
                     ).FirstOrDefault();
 
                 if (target != null)
                     Player.IssueOrder(GameObjectOrder.AttackUnit, target);
             }
-            else if (MenuManager.KillSteal.GetCheckBoxValue("ksQ") && SpellManager.Q.IsReady()
+            else if (MenuManager.KillSteal.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
                 && !SpellManager.IsSpinning)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
@@ -159,7 +158,7 @@ namespace AbsoluteGaren
                 }
             }
 
-            if (MenuManager.KillSteal.GetCheckBoxValue("ksR") && SpellManager.R.IsReady()
+            if (MenuManager.KillSteal.GetCheckBoxValue("R") && SpellManager.R.IsReady()
                 && _player.CountEnemyChampionsInRange(SpellManager.R.Range) > 0)
             {
                 Obj_AI_Base target = EntityManager.Heroes.Enemies
@@ -191,11 +190,11 @@ namespace AbsoluteGaren
                 ).FirstOrDefault();
 
                 if (turret != null && !SpellManager.HasQActive
-                    && ((turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
+                    && ((turret.HealthPercent >= MenuManager.percentHealth && LastAutoTime.IsWithinTime(0.5f))
                         || turret.Health <= _player.GetAutoAttackDamage(turret)))
                     Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
                 else if (turret != null && SpellManager.Q.IsReady()
-                    && ((turret.HealthPercent >= MenuManager.percentHealth/* && Game.Time - LastAutoTime < 0.1f*/)
+                    && ((turret.HealthPercent >= MenuManager.percentHealth && LastAutoTime.IsWithinTime(0.5f))
                         || turret.Health <= _player.GetAutoAttackDamage(turret) + SpellManager.QDamage(turret)))
                 {
                     SpellManager.Q.Cast();
@@ -206,7 +205,7 @@ namespace AbsoluteGaren
 
         public static void Passives()
         {
-            if (MenuManager.Settings.GetCheckBoxValue("cleanseQ") && SpellManager.Q.IsReady())
+            if (MenuManager.Settings.GetCheckBoxValue("cleanse") && SpellManager.Q.IsReady())
             {
                 if (_player.HasBuffOfType(BuffType.Slow))
                     SpellManager.Q.Cast();

@@ -1,5 +1,7 @@
 ﻿using System;
 using EloBuddy.SDK.Menu;
+using EloBuddy;
+using EloBuddy.SDK;
 
 namespace AbsoluteGaren
 {
@@ -24,48 +26,48 @@ namespace AbsoluteGaren
             mainMenu.AddLabel("Found a bug or error? Please contact me by PM on EloBuddy.");
             
             Combo.AddGroupLabel("Combo Features");
-            Combo.AddCheckBox("comboQ", "Use Q");
-            Combo.AddCheckBox("comboE", "Use E");
+            Combo.AddCheckBox("Q", "Use Q");
+            Combo.AddCheckBox("E", "Use E");
             
             LaneClear.AddGroupLabel("LaneClear Features");
-            LaneClear.AddCheckBox("laneQ", "Use Q", false);
-            LaneClear.AddCheckBox("laneE", "Use E");
+            LaneClear.AddCheckBox("Q", "Use Q", false);
+            LaneClear.AddCheckBox("E", "Use E");
             
             LastHit.AddGroupLabel("LastHit Features");
-            LastHit.AddCheckBox("lasthitQ", "Use Q");
+            LastHit.AddCheckBox("Q", "Use Q");
             
             JungleClear.AddGroupLabel("JungleClear Features");
-            JungleClear.AddCheckBox("jungleQ", "Use Q");
-            JungleClear.AddCheckBox("jungleE", "Use E");
+            JungleClear.AddCheckBox("Q", "Use Q");
+            JungleClear.AddCheckBox("E", "Use E");
             
             KillSteal.AddGroupLabel("KillSteal Features");
-            KillSteal.AddCheckBox("ksAA", "KS with Auto Attack");
-            KillSteal.AddCheckBox("ksQ", "KS with Q");
-            KillSteal.AddCheckBox("ksR", "KS with R");
+            KillSteal.AddCheckBox("AA", "KS with Basic Attack");
+            KillSteal.AddCheckBox("Q", "KS with Q");
+            KillSteal.AddCheckBox("R", "KS with R");
             
             Rendering.AddGroupLabel("Rendering Features");
-            //Rendering.AddCheckBox("renderP", "Render Player HP Bar");
-            //Rendering.AddCheckBox("renderA", "Render Ally HP Bar");
-            Rendering.AddCheckBox("renderE", "Render Enemy HP Bar");
+            //Rendering.AddCheckBox("player", "Render Player HP Bar");
+            //Rendering.AddCheckBox("ally", "Render Ally HP Bar");
+            Rendering.AddCheckBox("enemy", "Render Enemy HP Bar");
             Rendering.AddCheckBox("killable", "Display 'Killable' text");
             Rendering.AddLabel("Rendering Configurations");
-            Rendering.AddCheckBox("renderS_dmg", "Render Spell damage");
-            Rendering.AddCheckBox("renderI_dmg", "Render Item damage");
-            Rendering.AddSlider("renderAA", "Render Basic Attack damage", 2, 0, 5);
-            //Rendering.AddCheckBox("renderS_heal", "Render Spell healing");
-            //Rendering.AddCheckBox("renderI_heal", "Render Item healing");
+            Rendering.AddCheckBox("spell_dmg", "Render Spell damage");
+            Rendering.AddCheckBox("item_dmg", "Render Item damage");
+            Rendering.AddSlider("aa_dmg", "Render Basic Attack damage", 2, 0, 5);
+            //Rendering.AddCheckBox("spell_heal", "Render Spell healing");
+            //Rendering.AddCheckBox("item_heal", "Render Item healing");
 
             Settings.AddGroupLabel("Settings Features");
-            Settings.AddCheckBox("cleanseQ", "Cleanse Slows with Q", false);
+            Settings.AddCheckBox("cleanse", "Cleanse Slows with Q", false);
             Settings.AddCheckBox("destroy", "Destroy structures with Q");
             Settings.AddSlider("percentQ", "Save Q for ks when unit Health percent >= ", 35, 0, 100);
 
-            Settings.GetSliderObject("percentQ").OnValueChange += MenuManager_OnValueChange; ;
+            Settings.GetSliderObject("percentQ").OnValueChange += PercentageQ_OnValueChange;
 
             Console.WriteLine("MenuManager initialized.");
         }
 
-        static void MenuManager_OnValueChange(EloBuddy.SDK.Menu.Values.ValueBase<int> sender,
+        static void PercentageQ_OnValueChange(EloBuddy.SDK.Menu.Values.ValueBase<int> sender,
             EloBuddy.SDK.Menu.Values.ValueBase<int>.ValueChangeArgs args)
         {
             percentHealth = args.NewValue;

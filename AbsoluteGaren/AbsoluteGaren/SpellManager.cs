@@ -1,6 +1,7 @@
 ﻿using System;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Enumerations;
 
 namespace AbsoluteGaren
 {
@@ -22,8 +23,8 @@ namespace AbsoluteGaren
             E = new Spell.Active(SpellSlot.E, 300, DamageType.Physical);
             R = new Spell.Targeted(SpellSlot.R, 400, DamageType.Magical);
 
-            HasQActive = false;
-            IsSpinning = false;
+            HasQActive = _player.HasBuff("GarenQ");
+            IsSpinning = _player.HasBuff("GarenE");
 
             Console.WriteLine("SpellManager initialized.");
         }
@@ -48,7 +49,7 @@ namespace AbsoluteGaren
             damage += Q.IsReady() ? QDamage(target) : 0;
             damage += R.IsReady() ? RDamage(target) : 0;
             damage += Orbwalker.CanAutoAttack ? _player.GetAutoAttackDamage(target)
-                * MenuManager.Rendering.GetSliderValue("renderAA") : 0;
+                * MenuManager.Rendering.GetSliderValue("AA") : 0;
 
             return damage;
         }
