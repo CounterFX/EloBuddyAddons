@@ -2,176 +2,66 @@
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu;
 
 namespace AbsoluteGaren
 {
     class ModeManager
     {
-        public static float LastAutoTime = 0;
         public static AIHeroClient _player;
 
         public static void Combo()
         {
-            if (MenuManager.Combo.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
-                && !SpellManager.IsSpinning)
-            {
-                Obj_AI_Base target = EntityManager.Heroes.Enemies
-                    .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget()
-                        && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        && a.HealthPercent >= MenuManager.percentHealth
-                        && LastAutoTime.IsWithinTime(0.5f)
-                    ).FirstOrDefault();
+            Menu menu = MenuManager.Combo;
+            List<Obj_AI_Base> targets = EntityManager.Heroes.Enemies.ToObj_AI_BaseList();
 
-                if (target != null)
-                {
-                    SpellManager.Q.Cast();
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                }
-            }
-
-            if (MenuManager.Combo.GetCheckBoxValue("E") && SpellManager.E.IsReady()
-                && _player.CountEnemyChampionsInRange(SpellManager.E.Range) > 0
-                && !SpellManager.IsSpinning)
-            {
-                SpellManager.E.Cast();
-            }
+            SpellManager.CastQ(menu, targets);
+            SpellManager.CastE(menu, targets);
         }
 
         public static void LaneClear()
         {
-            if (MenuManager.LaneClear.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
-                && !SpellManager.IsSpinning)
-            {
-                List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
+            Menu menu = MenuManager.LaneClear;
+            List<Obj_AI_Base> targets = EntityManager.MinionsAndMonsters.EnemyMinions
+                .Concat(EntityManager.MinionsAndMonsters.OtherEnemyMinions
+                    .Where(a => a.IsTargetable && a.Name != "God" &&  a.Name != "VoidSpawn")
+                ).ToObj_AI_BaseList();
 
-                targets.AddRange(EntityManager.MinionsAndMonsters.EnemyMinions.ToObj_AI_BaseList());
-                targets.AddRange(EntityManager.MinionsAndMonsters.OtherEnemyMinions.ToObj_AI_BaseList());
-
-                Obj_AI_Base target = targets
-                    .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget()
-                        && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        && ((a.HealthPercent >= MenuManager.percentHealth && LastAutoTime.IsWithinTime(0.5f))
-                        || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
-                    ).FirstOrDefault();
-
-                if (target != null)
-                {
-                    SpellManager.Q.Cast();
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                }
-            }
-
-            if (MenuManager.LaneClear.GetCheckBoxValue("E") && SpellManager.E.IsReady()
-                && _player.CountEnemyMinionsInRange(SpellManager.E.Range) > 1
-                && !SpellManager.IsSpinning)
-            {
-                SpellManager.E.Cast();
-            }
+            SpellManager.CastQ(menu, targets);
+            SpellManager.CastE(menu, targets, 1);
         }
 
         public static void LastHit()
         {
-            if (MenuManager.LastHit.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
-                && !SpellManager.IsSpinning)
-            {
-                List<Obj_AI_Base> targets = new List<Obj_AI_Base>();
+            Menu menu = MenuManager.LastHit;
+            List<Obj_AI_Base> targets = EntityManager.MinionsAndMonsters.EnemyMinions
+                .Concat(EntityManager.MinionsAndMonsters.OtherEnemyMinions
+                    .Where(a => a.IsTargetable && a.Name != "God" &&  a.Name != "VoidSpawn")
+                ).Concat(EntityManager.MinionsAndMonsters.Monsters).ToObj_AI_BaseList();
 
-                targets.AddRange(EntityManager.MinionsAndMonsters.EnemyMinions.ToObj_AI_BaseList());
-                targets.AddRange(EntityManager.MinionsAndMonsters.Monsters.ToObj_AI_BaseList());
-                targets.AddRange(EntityManager.MinionsAndMonsters.OtherEnemyMinions.ToObj_AI_BaseList());
-
-                Obj_AI_Base target = targets
-                    .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget()
-                        && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        && a.Health > _player.GetAutoAttackDamage(a)
-                        && a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a)
-                    ).FirstOrDefault();
-
-                if (target != null)
-                {
-                    SpellManager.Q.Cast();
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                }
-            }
+            SpellManager.CastQ(menu, targets, true);
         }
 
         public static void JungleClear()
         {
-            if (MenuManager.JungleClear.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
-                && !SpellManager.IsSpinning)
-            {
-                Obj_AI_Base target = EntityManager.MinionsAndMonsters.Monsters
-                    .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget()
-                        && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        && a.IsLargeMonster()
-                        && ((a.HealthPercent >= MenuManager.percentHealth)
-                        || a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a))
-                    ).FirstOrDefault();
+            Menu menu = MenuManager.JungleClear;
+            List<Obj_AI_Base> targets = EntityManager.MinionsAndMonsters.Monsters
+                .ToObj_AI_BaseList();
+            List<Obj_AI_Base> largetargets = targets
+                .Where(a => a.IsLargeMonster()).ToList();
 
-                if (target != null)
-                {
-                    SpellManager.Q.Cast();
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                }
-            }
-
-            if (MenuManager.JungleClear.GetCheckBoxValue("E") && SpellManager.E.IsReady()
-                && _player.CountMonstersInRange(SpellManager.E.Range) > 1
-                && !SpellManager.IsSpinning)
-            {
-                SpellManager.E.Cast();
-            }
+            SpellManager.CastQ(menu, largetargets);
+            SpellManager.CastE(menu, targets, 1);
         }
 
         public static void KillSteal()
         {
-            if (MenuManager.KillSteal.GetCheckBoxValue("AA")
-                && !SpellManager.HasQActive && !SpellManager.IsSpinning)
-            {
-                Obj_AI_Base target = EntityManager.Heroes.Enemies
-                    .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget()
-                        && _player.CanKillWithBasicAttack(a)
-                    ).FirstOrDefault();
+            Menu menu = MenuManager.KillSteal;
+            List<Obj_AI_Base> targets = EntityManager.Heroes.Enemies.ToObj_AI_BaseList();
 
-                if (target != null)
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-            }
-            else if (MenuManager.KillSteal.GetCheckBoxValue("Q") && SpellManager.Q.IsReady()
-                && !SpellManager.IsSpinning)
-            {
-                Obj_AI_Base target = EntityManager.Heroes.Enemies
-                    .OrderBy(a => a.Health)
-                    .Where(a => a.IsValidTarget()
-                        && _player.IsInRange(a, _player.GetAutoAttackRange())
-                        && a.Health <= _player.GetAutoAttackDamage(a) + SpellManager.QDamage(a)
-                    ).FirstOrDefault();
-
-                if (target != null)
-                {
-                    SpellManager.Q.Cast();
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                }
-            }
-
-            if (MenuManager.KillSteal.GetCheckBoxValue("R") && SpellManager.R.IsReady()
-                && _player.CountEnemyChampionsInRange(SpellManager.R.Range) > 0)
-            {
-                Obj_AI_Base target = EntityManager.Heroes.Enemies
-                    .OrderBy(a => a.HasBuff("garenpassiveenemytarget"))
-                    .ThenBy(a => a.Health)
-                    .Where(a => a.IsValidTarget()
-                        && _player.IsInRange(a, SpellManager.R.Range)
-                        && a.Health <= SpellManager.RDamage(a)
-                    ).FirstOrDefault();
-
-                if (target != null)
-                    SpellManager.R.Cast(target);
-            }
+            SpellManager.CastBasicAttack(menu, targets, true);
+            SpellManager.CastQ(menu, targets, true);
+            SpellManager.CastR(menu, targets, true);
         }
 
         public static void Destroyer()
@@ -190,11 +80,11 @@ namespace AbsoluteGaren
                 ).FirstOrDefault();
 
                 if (turret != null && !SpellManager.HasQActive
-                    && ((turret.HealthPercent >= MenuManager.percentHealth && LastAutoTime.IsWithinTime(0.5f))
+                    && ((turret.HealthPercent >= MenuManager.percentHealth && SpellManager.LastAutoTime.IsWithinTime(0.5f))
                         || turret.Health <= _player.GetAutoAttackDamage(turret)))
                     Player.IssueOrder(GameObjectOrder.AttackUnit, turret);
                 else if (turret != null && SpellManager.Q.IsReady()
-                    && ((turret.HealthPercent >= MenuManager.percentHealth && LastAutoTime.IsWithinTime(0.5f))
+                    && ((turret.HealthPercent >= MenuManager.percentHealth && SpellManager.LastAutoTime.IsWithinTime(0.5f))
                         || turret.Health <= _player.GetAutoAttackDamage(turret) + SpellManager.QDamage(turret)))
                 {
                     SpellManager.Q.Cast();

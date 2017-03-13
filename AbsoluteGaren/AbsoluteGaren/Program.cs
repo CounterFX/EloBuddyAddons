@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using Color = System.Drawing.Color;
+using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
@@ -44,6 +44,8 @@ namespace AbsoluteGaren
 
             if (_player.IsDead) return;
 
+            SpellManager.hasPerformedAction = false;
+
             if (!_player.IsRecalling())
             {
                 if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
@@ -64,12 +66,12 @@ namespace AbsoluteGaren
 
         static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
-            ModeManager.LastAutoTime = Game.Time;
+            SpellManager.LastAutoTime = Game.Time;
         }
 
         static void Drawing_OnDraw(EventArgs args)
         {
-            if (_player.IsDead) return;
+            if (_player.IsDead && Game.Time < 10) return;
 
             if (MenuManager.Rendering.GetCheckBoxValue("killable"))
             {
@@ -85,7 +87,7 @@ namespace AbsoluteGaren
         {
             if (_player.IsDead) return;
 
-            if (MenuManager.Rendering.GetCheckBoxValue("E"))
+            if (MenuManager.Rendering.GetCheckBoxValue("enemy"))
             {
                 List<Obj_AI_Base> units = EntityManager.Heroes.Enemies.ToObj_AI_BaseList();
 
@@ -100,6 +102,20 @@ namespace AbsoluteGaren
 
                     target.RenderHPBar(damage);
                 }
+            }
+
+            if (MenuManager.Rendering.GetCheckBoxValue("player"))
+            {
+                Obj_AI_Base target = EntityManager.Heroes.Enemies
+                    .OrderBy(a => a.Health).ThenBy(a => _player.Distance(a))
+                    .Where(a => a.IsValidTarget()).FirstOrDefault();
+
+                float heal = 0;
+
+                if (MenuManager.Rendering.GetCheckBoxValue("item_dmg"))
+                    heal += _player.GetActiveItemHealing(target);
+
+                _player.RenderHPBar(heal);
             }
         }
     }

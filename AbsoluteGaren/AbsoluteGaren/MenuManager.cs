@@ -46,16 +46,14 @@ namespace AbsoluteGaren
             KillSteal.AddCheckBox("R", "KS with R");
             
             Rendering.AddGroupLabel("Rendering Features");
-            //Rendering.AddCheckBox("player", "Render Player HP Bar");
-            //Rendering.AddCheckBox("ally", "Render Ally HP Bar");
+            Rendering.AddCheckBox("player", "Render Player HP Bar");
             Rendering.AddCheckBox("enemy", "Render Enemy HP Bar");
             Rendering.AddCheckBox("killable", "Display 'Killable' text");
             Rendering.AddLabel("Rendering Configurations");
             Rendering.AddCheckBox("spell_dmg", "Render Spell damage");
             Rendering.AddCheckBox("item_dmg", "Render Item damage");
             Rendering.AddSlider("aa_dmg", "Render Basic Attack damage", 2, 0, 5);
-            //Rendering.AddCheckBox("spell_heal", "Render Spell healing");
-            //Rendering.AddCheckBox("item_heal", "Render Item healing");
+            Rendering.AddCheckBox("item_heal", "Render Item healing");
 
             Settings.AddGroupLabel("Settings Features");
             Settings.AddCheckBox("cleanse", "Cleanse Slows with Q", false);
