@@ -20,7 +20,7 @@ namespace AbsoluteGaren
         static void Loading_OnLoadingComplete(EventArgs args)
         {
             // Initialize player object
-            _player  = Player.Instance;
+            _player = Player.Instance;
             SpellManager._player = _player;
             ModeManager._player = _player;
             

@@ -42,7 +42,7 @@ namespace AbsoluteGaren
         public static float QDamage(Obj_AI_Base target)
         {
             float damage = _player.GetAutoAttackDamage(target) + 5 + (25 * Q.Level) + _player.PercentAttackDamage(40);
-            return _player.CalculateDamageOnUnit(target, Q.DamageType, damage, true, true);
+            return _player.CalculateDamageOnUnit(target, Q.DamageType, damage, false, true);
         }
 
         public static float RDamage(Obj_AI_Base target)
