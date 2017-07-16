@@ -241,6 +241,12 @@ namespace AbsoluteBravery
             List<ItemId> checklist = new List<ItemId>() {
                 ItemId.Farsight_Alteration,
                 ItemId.Oracle_Alteration,
+                ItemId.Boots_of_Mobility,
+                ItemId.Boots_of_Swiftness,
+                ItemId.Ionian_Boots_of_Lucidity,
+                ItemId.Ninja_Tabi,
+                ItemId.Mercurys_Treads,
+                ItemId.Sorcerers_Shoes,
                 ItemId.Rod_of_Ages,
                 ItemId.Rod_of_Ages_Quick_Charge,
                 ItemId.Archangels_Staff,
