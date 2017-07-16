@@ -26,8 +26,8 @@ namespace AbsoluteBravery
             ItemId.Infinity_Edge, ItemId.Knights_Vow, ItemId.Liandrys_Torment,
             ItemId.Lich_Bane, ItemId.Locket_of_the_Iron_Solari, ItemId.Lord_Dominiks_Regards,
             ItemId.Ludens_Echo, ItemId.Maw_of_Malmortius, ItemId.Mercurial_Scimitar,
-            ItemId.Mikaels_Crucible, ItemId.Morellonomicon, ItemId.Mortal_Reminder,
-            ItemId.Nashors_Tooth, ItemId.Phantom_Dancer,
+            ItemId.Mikaels_Crucible, ItemId.Morellonomicon,
+            ItemId.Mortal_Reminder, ItemId.Nashors_Tooth, ItemId.Phantom_Dancer,
             ItemId.Randuins_Omen, ItemId.Rapid_Firecannon, ItemId.Redemption,
             ItemId.Righteous_Glory, ItemId.Rylais_Crystal_Scepter, ItemId.Spirit_Visage,
             ItemId.Statikk_Shiv, ItemId.Steraks_Gage, ItemId.Sunfire_Cape,
@@ -160,7 +160,7 @@ namespace AbsoluteBravery
             ItemId.Abyssal_Scepter, ItemId.Frozen_Heart
         };
 
-        public static List<ItemId> CDItemList = new List<ItemId>()
+        public static List<ItemId> CDItemList_TenPercent = new List<ItemId>()
         {
             ItemId.Abyssal_Scepter, /* Adapative Helm*/ (ItemId)3194, ItemId.Ancient_Coin,
             ItemId.Ardent_Censer, ItemId.Athenes_Unholy_Grail, ItemId.Banner_of_Command,

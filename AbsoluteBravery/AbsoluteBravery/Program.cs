@@ -120,8 +120,8 @@ namespace AbsoluteBravery
                 if (!list.Contains(item) && ItemChecks(list, item))
                     list.Add(item);
             }
-            
-            return list;
+
+            return OrganizeStacks(list);
         }
 
         private static ItemId GenerateBoots()
@@ -232,6 +232,30 @@ namespace AbsoluteBravery
             }
 
             return list;
+        }
+
+        // Causing listner errors
+        private static List<ItemId> OrganizeStacks(List<ItemId> list)
+        {
+            List<ItemId> newlist = new List<ItemId>();
+            List<ItemId> checklist = new List<ItemId>() {
+                ItemId.Farsight_Alteration,
+                ItemId.Oracle_Alteration,
+                ItemId.Rod_of_Ages,
+                ItemId.Rod_of_Ages_Quick_Charge,
+                ItemId.Archangels_Staff,
+                ItemId.Archangels_Staff_Quick_Charge,
+                ItemId.Manamune,
+                ItemId.Manamune_Quick_Charge
+            };
+
+            foreach (ItemId item in list)
+                if (checklist.Contains(item))
+                    newlist.Add(item);
+
+            newlist.AddRange(list.Where(a => !checklist.Contains(a)));
+
+            return newlist;
         }
     }
 }
