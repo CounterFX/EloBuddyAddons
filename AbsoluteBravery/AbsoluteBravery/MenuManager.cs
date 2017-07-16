@@ -21,9 +21,8 @@ namespace AbsoluteBravery
             Rules.AddGroupLabel("Rules");
             Rules.AddLabel("AbsoluteBravery is a game mode designed to challenge players.");
             Rules.AddLabel("Using randomized item sets and leveling systems to achieve victory.");
-            Rules.AddGroupLabel("How It Works:");
-            Rules.AddLabel("1. Auto buy boots as first time.");
-            Rules.AddLabel("Exception: Cassiopeia begins building items.");
+            Rules.AddLabel("This addon will automaticaly purchase items / trinkets and level up spells.");
+            Rules.AddLabel("Play with friends in a custom game match!");
 
             Settings.AddGroupLabel("Settings");
             Settings.AddCheckBox("dirk", "Build Poacher's Dirk first", false);

@@ -12,6 +12,8 @@ namespace AbsoluteBravery
 {
     class Lists
     {
+        public static ItemId dirkoption;
+
         #region MapId ItemLists
         public static List<ItemId> globalItemList = new List<ItemId>()
         {
@@ -461,7 +463,6 @@ namespace AbsoluteBravery
             ItemId.Talisman_of_Ascension, ItemId.Frost_Queens_Claim, ItemId.Face_of_the_Mountain
         };
         #endregion
-
         public static List<ItemBuilding> ItemsBuiltList = new List<ItemBuilding>()
         {
             new ItemBuilding(ItemId.Farsight_Alteration, ItemId.Warding_Totem_Trinket),
@@ -531,7 +532,7 @@ namespace AbsoluteBravery
             new ItemBuilding(ItemId.Dead_Mans_Plate, ItemId.Chain_Vest, ItemId.Giants_Belt),
             new ItemBuilding(ItemId.Deaths_Dance, ItemId.Caulfields_Warhammer, ItemId.Pickaxe, ItemId.Vampiric_Scepter),
             new ItemBuilding(ItemId.Duskblade_of_Draktharr, ItemId.Serrated_Dirk, ItemId.Caulfields_Warhammer),
-            new ItemBuilding(ItemId.Edge_of_Night, ItemId.Pickaxe, ItemId.Serrated_Dirk, ItemId.Ruby_Crystal),
+            new ItemBuilding(ItemId.Edge_of_Night, ItemId.Pickaxe, dirkoption, ItemId.Ruby_Crystal),
             new ItemBuilding(ItemId.Essence_Reaver, ItemId.B_F_Sword, ItemId.Caulfields_Warhammer, ItemId.Cloak_of_Agility),
             new ItemBuilding(ItemId.Eye_of_the_Equinox, ItemId.Targons_Brace, ItemId.Sightstone),
             new ItemBuilding(ItemId.Eye_of_the_Oasis, ItemId.Nomads_Medallion, ItemId.Sightstone),
@@ -591,7 +592,7 @@ namespace AbsoluteBravery
             new ItemBuilding(ItemId.Warmogs_Armor, ItemId.Giants_Belt, ItemId.Kindlegem, ItemId.Crystalline_Bracer),
             new ItemBuilding(ItemId.Wits_End, ItemId.Recurve_Bow, ItemId.Negatron_Cloak, ItemId.Dagger),
             new ItemBuilding(ItemId.Wooglets_Witchcap, ItemId.Seekers_Armguard, ItemId.Needlessly_Large_Rod),
-            new ItemBuilding(ItemId.Youmuus_Ghostblade, ItemId.Caulfields_Warhammer, ItemId.Serrated_Dirk),
+            new ItemBuilding(ItemId.Youmuus_Ghostblade, ItemId.Caulfields_Warhammer, dirkoption),
             new ItemBuilding(ItemId.Zekes_Harbinger, ItemId.Glacial_Shroud, ItemId.Aegis_of_the_Legion),
             new ItemBuilding(ItemId.Zhonyas_Hourglass, ItemId.Seekers_Armguard, ItemId.Fiendish_Codex),
             new ItemBuilding(ItemId.ZzRot_Portal, ItemId.Raptor_Cloak, ItemId.Negatron_Cloak)

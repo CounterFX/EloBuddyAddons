@@ -35,6 +35,10 @@ namespace AbsoluteBravery
             itemList = GenerateItemList();
             spellList = GenerateSpellList();
             Time = Game.Time;
+            if (MenuManager.Settings.GetCheckBoxValue("dirk"))
+                Lists.dirkoption = ItemId.Poachers_Dirk;
+            else
+                Lists.dirkoption = ItemId.Serrated_Dirk;
 
             // Activate events
             Game.OnTick += Game_OnTick;
