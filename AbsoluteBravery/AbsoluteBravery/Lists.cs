@@ -462,7 +462,18 @@ namespace AbsoluteBravery
             ItemId.Eye_of_the_Equinox, ItemId.Eye_of_the_Oasis, ItemId.Eye_of_the_Watchers,
             ItemId.Talisman_of_Ascension, ItemId.Frost_Queens_Claim, ItemId.Face_of_the_Mountain
         };
+
+        public static List<ItemId> AStackList = new List<ItemId>()
+        {
+            ItemId.Archangels_Staff, ItemId.Archangels_Staff_Quick_Charge, ItemId.Seraphs_Embrace,
+        };
+
+        public static List<ItemId> MStackList = new List<ItemId>()
+        {
+            ItemId.Manamune, ItemId.Manamune_Quick_Charge, ItemId.Muramana,
+        };
         #endregion
+
         public static List<ItemBuilding> ItemsBuiltList = new List<ItemBuilding>()
         {
             new ItemBuilding(ItemId.Farsight_Alteration, ItemId.Warding_Totem_Trinket),
@@ -595,7 +606,23 @@ namespace AbsoluteBravery
             new ItemBuilding(ItemId.Youmuus_Ghostblade, ItemId.Caulfields_Warhammer, dirkoption),
             new ItemBuilding(ItemId.Zekes_Harbinger, ItemId.Glacial_Shroud, ItemId.Aegis_of_the_Legion),
             new ItemBuilding(ItemId.Zhonyas_Hourglass, ItemId.Seekers_Armguard, ItemId.Fiendish_Codex),
-            new ItemBuilding(ItemId.ZzRot_Portal, ItemId.Raptor_Cloak, ItemId.Negatron_Cloak)
+            new ItemBuilding(ItemId.ZzRot_Portal, ItemId.Raptor_Cloak, ItemId.Negatron_Cloak),
+
+            new ItemBuilding(ItemId.Skirmishers_Sabre, ItemId.Hunters_Machete, ItemId.Hunters_Talisman),
+            new ItemBuilding(ItemId.Stalkers_Blade, ItemId.Hunters_Machete, ItemId.Hunters_Talisman),
+            new ItemBuilding(ItemId.Trackers_Knife, ItemId.Hunters_Machete, ItemId.Hunters_Talisman),
+            new ItemBuilding(ItemId.Skirmishers_Sabre_Enchantment_Bloodrazor, ItemId.Skirmishers_Sabre, ItemId.Recurve_Bow),
+            new ItemBuilding(ItemId.Skirmishers_Sabre_Enchantment_Cinderhulk, ItemId.Skirmishers_Sabre, ItemId.Bamis_Cinder),
+            new ItemBuilding(ItemId.Skirmishers_Sabre_Enchantment_Runic_Echoes, ItemId.Skirmishers_Sabre, ItemId.Aether_Wisp),
+            new ItemBuilding(ItemId.Skirmishers_Sabre_Enchantment_Warrior, ItemId.Skirmishers_Sabre, ItemId.Caulfields_Warhammer),
+            new ItemBuilding(ItemId.Stalkers_Blade_Enchantment_Bloodrazor, ItemId.Stalkers_Blade, ItemId.Recurve_Bow),
+            new ItemBuilding(ItemId.Stalkers_Blade_Enchantment_Cinderhulk, ItemId.Stalkers_Blade, ItemId.Bamis_Cinder),
+            new ItemBuilding(ItemId.Stalkers_Blade_Enchantment_Runic_Echoes, ItemId.Stalkers_Blade, ItemId.Aether_Wisp),
+            new ItemBuilding(ItemId.Stalkers_Blade_Enchantment_Warrior, ItemId.Stalkers_Blade, ItemId.Caulfields_Warhammer),
+            new ItemBuilding(ItemId.Trackers_Knife_Enchantment_Bloodrazor, ItemId.Trackers_Knife, ItemId.Recurve_Bow),
+            new ItemBuilding(ItemId.Trackers_Knife_Enchantment_Cinderhulk, ItemId.Trackers_Knife, ItemId.Bamis_Cinder),
+            new ItemBuilding(ItemId.Trackers_Knife_Enchantment_Runic_Echoes, ItemId.Trackers_Knife, ItemId.Aether_Wisp),
+            new ItemBuilding(ItemId.Trackers_Knife_Enchantment_Warrior, ItemId.Trackers_Knife, ItemId.Caulfields_Warhammer),
         };
     }
 }

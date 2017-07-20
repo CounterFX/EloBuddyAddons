@@ -16,6 +16,7 @@ namespace AbsoluteBravery
         public static GameMapId mapID;
         public static List<ItemId> itemList;
         public static List<SpellSlot> spellList;
+        public static string title;
         public static float Time = 0;
 
         public static void Main(string[] args)
@@ -32,13 +33,18 @@ namespace AbsoluteBravery
             MenuManager.Initialize();
 
             // Initialize methods
+            title = GenerateTitle();
             itemList = GenerateItemList();
             spellList = GenerateSpellList();
             Time = Game.Time;
+
             if (MenuManager.Settings.GetCheckBoxValue("dirk"))
                 Lists.dirkoption = ItemId.Poachers_Dirk;
-            else
+            else if (!MenuManager.Settings.GetCheckBoxValue("dirk"))
                 Lists.dirkoption = ItemId.Serrated_Dirk;
+
+            foreach (ItemId item in itemList)
+                Console.WriteLine(item);
 
             // Activate events
             Game.OnTick += Game_OnTick;
@@ -92,7 +98,10 @@ namespace AbsoluteBravery
 
         private static void Player_OnLevelUp(Obj_AI_Base sender, Obj_AI_BaseLevelUpEventArgs args)
         {
-            spellList.All(a => Player.LevelSpell(a));
+            if (_player.Level == 2 && _player.Spellbook.Spells.Any(a => a.Slot != SpellSlot.R && !a.IsLearned))
+                Player.LevelSpell(_player.Spellbook.Spells.FirstOrDefault(a => a.Slot != SpellSlot.R && !a.IsLearned).Slot);
+            else
+                spellList.All(a => Player.LevelSpell(a));
         }
 
         private static List<ItemId> GenerateItemList()
@@ -105,6 +114,7 @@ namespace AbsoluteBravery
                 list.Add(Lists.UpgradedTrinketItemList.RandomItemIdFromList());
                 itemcount++;
             }
+
             if (_player.Hero == Champion.Viktor)
                 list.Add(ItemId.Perfect_Hex_Core);
 
@@ -121,7 +131,7 @@ namespace AbsoluteBravery
                     list.Add(item);
             }
 
-            return OrganizeStacks(list);
+            return OrganizeList(list);
         }
 
         private static ItemId GenerateBoots()
@@ -159,13 +169,15 @@ namespace AbsoluteBravery
                 list.AddRange(Lists.TTItemList);
 
             if (_player.IsMelee
-                && (_player.Hero == Champion.Jayce || _player.Hero == Champion.Nidalee || _player.Hero == Champion.Gnar))
+                && (_player.Hero == Champion.Jayce || _player.Hero == Champion.Nidalee || _player.Hero == Champion.Gnar
+                || _player.Hero == Champion.Kayle))
             {
                 list.Add(ItemId.Ravenous_Hydra);
                 list.Add(ItemId.Titanic_Hydra);
             }
             if (_player.IsRanged
-                && (_player.Hero == Champion.Jayce || _player.Hero == Champion.Nidalee || _player.Hero == Champion.Gnar))
+                && (_player.Hero == Champion.Jayce || _player.Hero == Champion.Nidalee || _player.Hero == Champion.Gnar
+                || _player.Hero == Champion.Kayle))
                 list.Add(ItemId.Runaans_Hurricane);
 
             return list.RandomItemIdFromList();
@@ -180,6 +192,14 @@ namespace AbsoluteBravery
                 return false;
 
             if (Lists.SupportItemList.Contains(item) && list.Any(a => Lists.SupportItemList.Any(b => b == a)))
+                return false;
+
+            if (Lists.AStackList.Contains(item) && list.Any(a => Lists.AStackList.Any(b => b == a))
+                && _player.InventoryItems.All(a => !Lists.AStackList.Contains(a.Id)))
+                return false;
+
+            if (Lists.MStackList.Contains(item) && list.Any(a => Lists.MStackList.Any(b => b == a))
+                && _player.InventoryItems.All(a => !Lists.MStackList.Contains(a.Id)))
                 return false;
 
             return true;
@@ -234,25 +254,37 @@ namespace AbsoluteBravery
             return list;
         }
 
-        // Causing listner errors
-        private static List<ItemId> OrganizeStacks(List<ItemId> list)
+        private static List<ItemId> OrganizeList(List<ItemId> list)
         {
             List<ItemId> newlist = new List<ItemId>();
             List<ItemId> checklist = new List<ItemId>() {
                 ItemId.Farsight_Alteration,
                 ItemId.Oracle_Alteration,
+                ItemId.Skirmishers_Sabre_Enchantment_Bloodrazor,
+                ItemId.Skirmishers_Sabre_Enchantment_Cinderhulk,
+                ItemId.Skirmishers_Sabre_Enchantment_Runic_Echoes,
+                ItemId.Skirmishers_Sabre_Enchantment_Warrior,
+                ItemId.Stalkers_Blade_Enchantment_Bloodrazor,
+                ItemId.Stalkers_Blade_Enchantment_Cinderhulk,
+                ItemId.Stalkers_Blade_Enchantment_Runic_Echoes,
+                ItemId.Stalkers_Blade_Enchantment_Warrior,
+                ItemId.Trackers_Knife_Enchantment_Bloodrazor,
+                ItemId.Trackers_Knife_Enchantment_Cinderhulk,
+                ItemId.Trackers_Knife_Enchantment_Runic_Echoes,
+                ItemId.Trackers_Knife_Enchantment_Warrior,
                 ItemId.Boots_of_Mobility,
                 ItemId.Boots_of_Swiftness,
                 ItemId.Ionian_Boots_of_Lucidity,
                 ItemId.Ninja_Tabi,
                 ItemId.Mercurys_Treads,
                 ItemId.Sorcerers_Shoes,
-                ItemId.Rod_of_Ages,
-                ItemId.Rod_of_Ages_Quick_Charge,
+                ItemId.Perfect_Hex_Core,
                 ItemId.Archangels_Staff,
                 ItemId.Archangels_Staff_Quick_Charge,
                 ItemId.Manamune,
-                ItemId.Manamune_Quick_Charge
+                ItemId.Manamune_Quick_Charge,
+                ItemId.Rod_of_Ages,
+                ItemId.Rod_of_Ages_Quick_Charge
             };
 
             foreach (ItemId item in list)
@@ -262,6 +294,22 @@ namespace AbsoluteBravery
             newlist.AddRange(list.Where(a => !checklist.Contains(a)));
 
             return newlist;
+        }
+
+        private static string GenerateTitle()
+        {
+            List<string> list = new List<string>()
+            {
+                "AD",
+                "AD Tank",
+                "AP",
+                "AP Tank",
+                "Attack Speed",
+                "Movement Speed",
+                "Random"
+            };
+
+            return list.RandomStringFromList();
         }
     }
 }
