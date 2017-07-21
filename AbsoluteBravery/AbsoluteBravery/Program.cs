@@ -15,6 +15,7 @@ namespace AbsoluteBravery
         public static AIHeroClient _player;
         public static GameMapId mapID;
         public static List<ItemId> itemList;
+        public static List<ItemId> potentialItems;
         public static List<SpellSlot> spellList;
         public static string title;
         public static float Time = 0;
@@ -34,10 +35,12 @@ namespace AbsoluteBravery
 
             // Initialize methods
             title = GenerateTitle();
+            potentialItems = GeneratePotentialList();
             itemList = GenerateItemList();
             spellList = GenerateSpellList();
             Time = Game.Time;
 
+            // Configure dirk options
             if (MenuManager.Settings.GetCheckBoxValue("dirk"))
                 Lists.dirkoption = ItemId.Poachers_Dirk;
             else if (!MenuManager.Settings.GetCheckBoxValue("dirk"))
@@ -54,54 +57,38 @@ namespace AbsoluteBravery
 
         private static void Game_OnTick(EventArgs args)
         {
-            // Prevent purchasing too quickly
             if (Game.Time - Time >= 1f)
             {
                 Time = Game.Time;
 
-                // if shopping is available by fountain or death
-                if (Shop.CanShop)
-                {
-                    // Check each item in list
-                    foreach (ItemId item in itemList)
-                    {
-                        // Check to see if all previous items in the list were purchased
-                        if (itemList.IndexOf(item) - 1 >= 0
-                            && itemList[itemList.IndexOf(item) - 1] != ItemId.Farsight_Alteration
-                            && itemList[itemList.IndexOf(item) - 1] != ItemId.Oracle_Alteration
-                            && _player.InventoryItems.All(a => a.Id != itemList[itemList.IndexOf(item) - 1]))
-                            break;
-                        
-                        // Check to make sure player doesn't own said item
-                        if (_player.InventoryItems.All(a => a.Id != item))
-                        {
-                            // If player cannot buy item, check for components of that item
-                            if (!Shop.BuyItem(item)
-                                || ((item == ItemId.Farsight_Alteration || item == ItemId.Oracle_Alteration)
-                                && _player.Level < 9))
-                            {
-                                // If player cannot buy components of said item, check for its components
-                                if (!BuyComponents(item))
-                                {
-                                    ItemBuilding ibuild = Lists.ItemsBuiltList.FirstOrDefault(a => a.result == item);
-                                    
-                                    if (ibuild != null)
-                                        foreach (ItemId id in ibuild.components)
-                                            BuyComponents(id);
-                                }
-                            }
-                        }
-                    }
-                }
+                BuyItem();
             }
         }
 
-        private static void Player_OnLevelUp(Obj_AI_Base sender, Obj_AI_BaseLevelUpEventArgs args)
+        #region ItemList
+        private static List<ItemId> GeneratePotentialList()
         {
-            if (_player.Level == 2 && _player.Spellbook.Spells.Any(a => a.Slot != SpellSlot.R && !a.IsLearned))
-                Player.LevelSpell(_player.Spellbook.Spells.FirstOrDefault(a => a.Slot != SpellSlot.R && !a.IsLearned).Slot);
-            else
-                spellList.All(a => Player.LevelSpell(a));
+            List<ItemId> list = new List<ItemId>();
+
+            list.AddRange(Lists.globalItemList);
+
+            if (Game.MapId == GameMapId.SummonersRift)
+                list.AddRange(Lists.SRItemList);
+            else if (Game.MapId == GameMapId.HowlingAbyss)
+                list.AddRange(Lists.HAItemList);
+            else if (Game.MapId == GameMapId.TwistedTreeline)
+                list.AddRange(Lists.TTItemList);
+
+            if (_player.IsMelee)
+            {
+                list.Add(ItemId.Ravenous_Hydra);
+                list.Add(ItemId.Titanic_Hydra);
+            }
+
+            if (_player.IsRanged)
+                list.Add(ItemId.Runaans_Hurricane);
+
+            return list;
         }
 
         private static List<ItemId> GenerateItemList()
@@ -119,68 +106,15 @@ namespace AbsoluteBravery
                 list.Add(ItemId.Perfect_Hex_Core);
 
             if (_player.Hero != Champion.Cassiopeia)
-                list.Add(GenerateBoots());
+                list.Add(AddBoots());
 
             if (_player.GetSpellSlotFromName("summonersmite") != SpellSlot.Unknown)
-                list.Add(GenerateJungleItem());
+                list.Add(AddJungleItem());
             
             while (list.Count < itemcount)
-            {
-                ItemId item = GenerateRandomItem();
-                if (!list.Contains(item) && ItemChecks(list, item))
-                    list.Add(item);
-            }
+                AddItemToList(list);
 
             return OrganizeList(list);
-        }
-
-        private static ItemId GenerateBoots()
-        {
-            List<ItemId> list = new List<ItemId>();
-
-            if (list.Count == 0)
-                list.AddRange(Lists.BootsItemList);
-
-            return list.RandomItemIdFromList();
-        }
-
-        private static ItemId GenerateJungleItem()
-        {
-            List<ItemId> list = new List<ItemId>();
-
-            if (Game.MapId == GameMapId.SummonersRift)
-                list.AddRange(Lists.SRJungleItemList);
-            else if (Game.MapId == GameMapId.TwistedTreeline)
-                list.AddRange(Lists.TTJungleItemList);
-
-            return list.RandomItemIdFromList();
-        }
-
-        private static ItemId GenerateRandomItem()
-        {
-            List<ItemId> list = new List<ItemId>();
-            list.AddRange(Lists.globalItemList); 
-
-            if (Game.MapId == GameMapId.SummonersRift)
-                list.AddRange(Lists.SRItemList);
-            else if (Game.MapId == GameMapId.HowlingAbyss)
-                list.AddRange(Lists.HAItemList);
-            else if (Game.MapId == GameMapId.TwistedTreeline)
-                list.AddRange(Lists.TTItemList);
-
-            if (_player.IsMelee
-                && (_player.Hero == Champion.Jayce || _player.Hero == Champion.Nidalee || _player.Hero == Champion.Gnar
-                || _player.Hero == Champion.Kayle))
-            {
-                list.Add(ItemId.Ravenous_Hydra);
-                list.Add(ItemId.Titanic_Hydra);
-            }
-            if (_player.IsRanged
-                && (_player.Hero == Champion.Jayce || _player.Hero == Champion.Nidalee || _player.Hero == Champion.Gnar
-                || _player.Hero == Champion.Kayle))
-                list.Add(ItemId.Runaans_Hurricane);
-
-            return list.RandomItemIdFromList();
         }
 
         private static bool ItemChecks(List<ItemId> list, ItemId item)
@@ -203,6 +137,191 @@ namespace AbsoluteBravery
                 return false;
 
             return true;
+        }
+
+        private static List<ItemId> OrganizeList(List<ItemId> list)
+        {
+            List<ItemId> newlist = new List<ItemId>();
+            List<ItemId> stacklist = new List<ItemId>() {
+                ItemId.Archangels_Staff,
+                ItemId.Archangels_Staff_Quick_Charge,
+                ItemId.Manamune,
+                ItemId.Manamune_Quick_Charge,
+                ItemId.Rod_of_Ages,
+                ItemId.Rod_of_Ages_Quick_Charge
+            };
+
+            foreach (ItemId item in list)
+            {
+                if (Lists.UpgradedTrinketItemList.Contains(item))
+                    newlist.Add(item);
+            }
+
+            foreach (ItemId item in list)
+            {
+                if (Lists.SRJungleItemList.Contains(item))
+                    newlist.Add(item);
+            }
+
+            foreach (ItemId item in list)
+            {
+                if (Lists.UpgradedBootsItemList.Contains(item))
+                    newlist.Add(item);
+            }
+
+            foreach (ItemId item in list)
+            {
+                if (item == ItemId.Perfect_Hex_Core)
+                    newlist.Add(item);
+            }
+
+            foreach (ItemId item in list)
+            {
+                if (Lists.SupportItemList.Contains(item))
+                    newlist.Add(item);
+            }
+
+            foreach (ItemId item in list)
+            {
+                if (stacklist.Contains(item))
+                    newlist.Add(item);
+            }
+
+            newlist.AddRange(list.Where(a => !newlist.Contains(a)));
+
+            return newlist;
+        }
+        #endregion
+
+        #region Items
+        private static void AddItemToList(List<ItemId> list)
+        {
+            ItemId item = ItemId.Unknown;
+            switch (title)
+            {
+                case "ADC":
+                    item = AddRandomItem();
+                    break;
+                case "AP":
+                    item = AddRandomItem();
+                    break;
+                case "Tank":
+                    item = AddRandomItem();
+                    break;
+                case "Support":
+                    item = AddRandomItem();
+                    break;
+                case "Random":
+                    item = AddRandomItem();
+                    break;
+            }
+            
+            if (item != ItemId.Unknown)
+                if (!list.Contains(item) && ItemChecks(list, item))
+                    list.Add(item);
+        }
+
+        private static ItemId AddBoots()
+        {
+            List<ItemId> list = new List<ItemId>();
+
+            if (list.Count == 0)
+                list.AddRange(Lists.UpgradedBootsItemList);
+
+            return list.RandomItemIdFromList();
+        }
+
+        private static ItemId AddJungleItem()
+        {
+            List<ItemId> list = new List<ItemId>();
+
+            if (Game.MapId == GameMapId.SummonersRift)
+                list.AddRange(Lists.SRJungleItemList);
+            else if (Game.MapId == GameMapId.TwistedTreeline)
+                list.AddRange(Lists.TTJungleItemList);
+
+            return list.RandomItemIdFromList();
+        }
+
+        private static ItemId AddRandomItem()
+        {
+            List<ItemId> list = new List<ItemId>();
+
+            list.AddRange(potentialItems);
+
+            return list.RandomItemIdFromList();
+        }
+
+        private static ItemId AddADItem()
+        {
+            List<ItemId> list = new List<ItemId>();
+
+            return list.RandomItemIdFromList();
+        }
+        #endregion
+
+        #region Spells
+        private static List<SpellSlot> GenerateSpellList()
+        {
+            int spellcount = 1;
+            List<SpellSlot> list = new List<SpellSlot>();
+            List<SpellSlot> spells = new List<SpellSlot>() { SpellSlot.Q, SpellSlot.W, SpellSlot.E };
+
+            list.Add(SpellSlot.R);
+
+            while (spellcount < 4)
+            {
+                SpellSlot slot = spells.RandomSpellSlotFromList();
+                if (!list.Contains(slot))
+                {
+                    list.Add(slot);
+                    spellcount++;
+                }
+            }
+
+            return list;
+        }
+
+        private static void Player_OnLevelUp(Obj_AI_Base sender, Obj_AI_BaseLevelUpEventArgs args)
+        {
+            if (_player.Level == 2 && _player.Spellbook.Spells.Any(a => a.Slot != SpellSlot.R && !a.IsLearned))
+                Player.LevelSpell(_player.Spellbook.Spells.FirstOrDefault(a => a.Slot != SpellSlot.R && !a.IsLearned).Slot);
+            else
+                spellList.All(a => Player.LevelSpell(a));
+        }
+        #endregion
+
+        #region Shopping
+        private static void BuyItem()
+        {
+            if (Shop.CanShop)
+            {
+                foreach (ItemId item in itemList)
+                {
+                    if (itemList.IndexOf(item) - 1 >= 0
+                        && itemList[itemList.IndexOf(item) - 1] != ItemId.Farsight_Alteration
+                        && itemList[itemList.IndexOf(item) - 1] != ItemId.Oracle_Alteration
+                        && _player.InventoryItems.All(a => a.Id != itemList[itemList.IndexOf(item) - 1]))
+                        break;
+                        
+                    if (_player.InventoryItems.All(a => a.Id != item))
+                    {
+                        if (!Shop.BuyItem(item)
+                            || ((item == ItemId.Farsight_Alteration || item == ItemId.Oracle_Alteration)
+                            && _player.Level < 9))
+                        {
+                            if (!BuyComponents(item))
+                            {
+                                ItemBuilding ibuild = Lists.ItemsBuiltList.FirstOrDefault(a => a.result == item);
+                                    
+                                if (ibuild != null)
+                                    foreach (ItemId id in ibuild.components)
+                                        BuyComponents(id);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private static bool BuyComponents(ItemId item)
@@ -232,84 +351,22 @@ namespace AbsoluteBravery
 
             return true;
         }
+        #endregion
 
-        private static List<SpellSlot> GenerateSpellList()
-        {
-            int spellcount = 1;
-            List<SpellSlot> list = new List<SpellSlot>();
-            List<SpellSlot> spells = new List<SpellSlot>() { SpellSlot.Q, SpellSlot.W, SpellSlot.E };
-
-            list.Add(SpellSlot.R);
-
-            while (spellcount < 4)
-            {
-                SpellSlot slot = spells.RandomSpellSlotFromList();
-                if (!list.Contains(slot))
-                {
-                    list.Add(slot);
-                    spellcount++;
-                }
-            }
-
-            return list;
-        }
-
-        private static List<ItemId> OrganizeList(List<ItemId> list)
-        {
-            List<ItemId> newlist = new List<ItemId>();
-            List<ItemId> checklist = new List<ItemId>() {
-                ItemId.Farsight_Alteration,
-                ItemId.Oracle_Alteration,
-                ItemId.Skirmishers_Sabre_Enchantment_Bloodrazor,
-                ItemId.Skirmishers_Sabre_Enchantment_Cinderhulk,
-                ItemId.Skirmishers_Sabre_Enchantment_Runic_Echoes,
-                ItemId.Skirmishers_Sabre_Enchantment_Warrior,
-                ItemId.Stalkers_Blade_Enchantment_Bloodrazor,
-                ItemId.Stalkers_Blade_Enchantment_Cinderhulk,
-                ItemId.Stalkers_Blade_Enchantment_Runic_Echoes,
-                ItemId.Stalkers_Blade_Enchantment_Warrior,
-                ItemId.Trackers_Knife_Enchantment_Bloodrazor,
-                ItemId.Trackers_Knife_Enchantment_Cinderhulk,
-                ItemId.Trackers_Knife_Enchantment_Runic_Echoes,
-                ItemId.Trackers_Knife_Enchantment_Warrior,
-                ItemId.Boots_of_Mobility,
-                ItemId.Boots_of_Swiftness,
-                ItemId.Ionian_Boots_of_Lucidity,
-                ItemId.Ninja_Tabi,
-                ItemId.Mercurys_Treads,
-                ItemId.Sorcerers_Shoes,
-                ItemId.Perfect_Hex_Core,
-                ItemId.Archangels_Staff,
-                ItemId.Archangels_Staff_Quick_Charge,
-                ItemId.Manamune,
-                ItemId.Manamune_Quick_Charge,
-                ItemId.Rod_of_Ages,
-                ItemId.Rod_of_Ages_Quick_Charge
-            };
-
-            foreach (ItemId item in list)
-                if (checklist.Contains(item))
-                    newlist.Add(item);
-
-            newlist.AddRange(list.Where(a => !checklist.Contains(a)));
-
-            return newlist;
-        }
-
+        #region Title
         private static string GenerateTitle()
         {
             List<string> list = new List<string>()
             {
-                "AD",
-                "AD Tank",
+                "ADC",
                 "AP",
-                "AP Tank",
-                "Attack Speed",
-                "Movement Speed",
+                "Tank",
+                "Support",
                 "Random"
             };
 
             return list.RandomStringFromList();
         }
+        #endregion
     }
 }
